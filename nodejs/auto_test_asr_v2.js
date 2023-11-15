@@ -24,7 +24,7 @@ function generateSignature(appId, apiKey) {
 }
 
 async function sendAudioData(websocket) {
-    const filename = '../dataset/test.wav';
+    const filename = '../dataset/3-1.wav';
     const fileData = fs.readFileSync(filename);
     const waveFileSampleRate = 16000; // Assuming a constant sample rate
     const numSamples = fileData.length / 2; // Assuming 16-bit samples
