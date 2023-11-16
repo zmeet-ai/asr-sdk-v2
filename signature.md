@@ -156,33 +156,6 @@ public class EncryptUtil {
 }
 ```
 
-* 加密规则说明
-
-1.获取baseString，baseString由app_id和当前时间戳ts拼接而成，假如app_id为595f23df，ts为1512041814，则baseString为
-
-> 595f23df1512041814
-
-2.对baseString进行MD5，假如baseString为上一步生成的595f23df1512041814，MD5之后则为
-
-> 0829d4012497c14a30e7e72aeebe565e
-
-3.以app_secret为key对MD5之后的baseString进行HmacSHA1加密，然后再对加密后的字符串进行base64编码。
-假如app_secret为d9f4aa7ea6d94faca62cd88a28fd5234，MD5之后的baseString为上一步生成的0829d4012497c14a30e7e72aeebe565e，
-则加密之后再进行base64编码得到的signa为
-
-> IrrzsJeOFk1NGfJHW6SkHUoN9CU=
-
-备注：
-
-- app_secret：接口密钥，在应用中添加实时语音转写服务时自动生成，调用方注意保管；
-- signa的生成公式：HmacSHA1(MD5(app_id + ts), app_secret)，具体的生成方法参考本git实例代
-
-####请求示例
-
-```text
-	wss://translate.abcpen.com/v1/asr/ws?appid=595f23df&ts=1512041814&signa=IrrzsJeOFk1NGfJHW6SkHUoN9CU=&pd=edu
-```
-
 ### 3. kotlin
 
 ```kotlin
