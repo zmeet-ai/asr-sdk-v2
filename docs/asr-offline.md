@@ -1,57 +1,30 @@
-# 录音文件识别请求
+## 录音文件识别请求
 
-最近更新时间：2023-10-26 01:06:44
-
- *我的收藏*
-
-## 本页目录：
-
-- [1. 接口描述](https://cloud.tencent.com/document/api/1093/37823#1.-.E6.8E.A5.E5.8F.A3.E6.8F.8F.E8.BF.B0)
-
-- [2. 输入参数](https://cloud.tencent.com/document/api/1093/37823#2.-.E8.BE.93.E5.85.A5.E5.8F.82.E6.95.B0)
-
-- [3. 输出参数](https://cloud.tencent.com/document/api/1093/37823#3.-.E8.BE.93.E5.87.BA.E5.8F.82.E6.95.B0)
-
-- 4. 示例
-
-  - [示例1 通过音频Url来调用接口](https://cloud.tencent.com/document/api/1093/37823#.E7.A4.BA.E4.BE.8B1-.E9.80.9A.E8.BF.87.E9.9F.B3.E9.A2.91Url.E6.9D.A5.E8.B0.83.E7.94.A8.E6.8E.A5.E5.8F.A3)
-  - [示例2 通过音频数据来调用接口](https://cloud.tencent.com/document/api/1093/37823#.E7.A4.BA.E4.BE.8B2-.E9.80.9A.E8.BF.87.E9.9F.B3.E9.A2.91.E6.95.B0.E6.8D.AE.E6.9D.A5.E8.B0.83.E7.94.A8.E6.8E.A5.E5.8F.A3)
-
-- 5. 开发者资源
-
-  - [腾讯云 API 平台](https://cloud.tencent.com/document/api/1093/37823#.E8.85.BE.E8.AE.AF.E4.BA.91-API-.E5.B9.B3.E5.8F.B0)
-  - [API Inspector](https://cloud.tencent.com/document/api/1093/37823#API-Inspector)
-  - [SDK](https://cloud.tencent.com/document/api/1093/37823#SDK)
-  - [命令行工具](https://cloud.tencent.com/document/api/1093/37823#.E5.91.BD.E4.BB.A4.E8.A1.8C.E5.B7.A5.E5.85.B7)
-
-- [6. 错误码](https://cloud.tencent.com/document/api/1093/37823#6.-.E9.94.99.E8.AF.AF.E7.A0.81)
-
-## 1. 接口描述
+### 1. 接口描述
 
 接口请求域名： https://asr-prod.abcpen.com/v2/asr/long
 
-本接口可对较长的录音文件进行识别。如希望直接使用带界面的语音识别产品，请访问[产品体验中心](https://console.cloud.tencent.com/asr/demonstrate)。产品计费标准请查阅 [计费概述（在线版）](https://cloud.tencent.com/document/product/1093/35686)
+本接口可对较长的录音文件进行识别。
 • 接口默认限频：20次/秒。此处仅限制任务提交频次，与识别结果返回时效无关
 • 返回时效：异步回调，非实时返回。最长3小时返回识别结果，**大多数情况下，1小时的音频1-3分钟即可完成识别**。请注意：上述返回时长不含音频下载时延，且30分钟内发送超过1000小时录音或2万条任务的情况除外
-• 媒体文件格式：包括各种音视频文件格式，如mp4, avi, mkv, mov, wmv, flv, webm, mpeg, mpg, h264, hevc, wav、mp3、m4a、flv、mp4、wma、3gp、amr、aac、ogg-opus、flac
-• 支持语言：在本页面上搜索 **EngineModelType**，或前往 [产品功能](https://cloud.tencent.com/document/product/1093/35682) 查看
-• 音频提交方式：本接口支持**音频 URL 、本地音频文件**两种请求方式。推荐使用 [腾讯云COS](https://cloud.tencent.com/document/product/436/38484) 来存储、生成URL并提交任务，此种方式将不产生外网和流量下行费用，可节约成本、提升任务速度（COS桶权限需要设置公有读私有写，或URL设置外部可访问）
+• 媒体文件格式：**支持几乎所有音视频文件格式**，如mp4, avi, mkv, mov, wmv, flv, webm, mpeg, mpg, h264, hevc, wav、mp3、m4a、flv、mp4、wma、3gp、amr、aac、ogg-opus、flac
+• 支持语言：[支持100种国家语言](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md)
+• 音频提交方式：本接口支持**音频 URL 、本地音频文件**两种请求方式。推荐使用[阿里云对象存储OSS](https://www.aliyun.com/product/oss?spm=5176.28508143.J_4VYgf18xNlTAyFFbOuOQe.60.e939154aMOdAFn) 、[亚马逊S3](about:blank)和 [腾讯云COS](https://cloud.tencent.com/document/product/436/38484) 等对象存储来存储、生成URL并提交任务，存储桶权限需要设置公有读私有写，或URL设置外部可访问
 • 音频限制：音频 URL 时长不能大于5小时，文件大小不超过1GB；本地音频文件不能大于5MB
 • 如何获取识别结果：支持**回调或轮询**的方式获取结果，具体请参考 [录音文件识别结果查询](https://cloud.tencent.com/document/product/1093/37822)
 • 识别结果有效时间：在服务端保存7天
-• 签名方法参考 [公共参数](https://cloud.tencent.com/document/api/1093/35640) 中签名方法 v3
+• 签名方法参考 [公共参数](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/signature.md) 中签名方法
 
 默认接口请求频率限制：20次/秒。
 
 
 
-## 2. 输入参数
+### 2. 输入参数
 
-以下请求参数列表仅列出了接口请求参数和部分公共参数，完整公共参数列表见 [公共请求参数](https://cloud.tencent.com/document/api/1093/35640)。
+以下请求参数列表仅列出了接口请求参数，完整公共参数列表见 [公共请求参数](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/signature.md)。
 
 | 参数名称           | 必选 | 类型    | 描述                                                         |
 | :----------------- | :--- | :------ | :----------------------------------------------------------- |
-| Region             | 否   | String  | [公共参数](https://cloud.tencent.com/document/api/1093/35640)，此参数为可选参数。 |
 | EngineModelType    | 是   | String  | 引擎模型类型  电话通讯场景引擎： **注意：电话通讯场景，请务必使用以下8k引擎** • 8k_zh：中文电话通讯； • 8k_en：英文电话通讯； 如您有电话通讯场景识别需求，但发现需求语种仅支持16k，可将8k音频传入下方16k引擎，亦能获取识别结果。但**16k引擎并非基于电话通讯数据训练，无法承诺此种调用方式的识别效果，需由您自行验证识别结果是否可用**  通用场景引擎： **注意：除电话通讯场景以外的其它识别场景，请务必使用以下16k引擎** • 16k_zh：中文普通话通用引擎，支持中文普通话和少量英语，使用丰富的中文普通话语料训练，覆盖场景广泛，适用于除电话通讯外的所有中文普通话识别场景； • 16k_zh-PY：中英粤混合引擎，使用一个引擎同时识别中文普通话、英语、粤语三个语言; • 16k_zh_dialect：中文普通话+多方言混合引擎，除普通话外支持23种方言（上海话、四川话、武汉话、贵阳话、昆明话、西安话、郑州话、太原话、兰州话、银川话、西宁话、南京话、合肥话、南昌话、长沙话、苏州话、杭州话、济南话、天津话、石家庄话、黑龙江话、吉林话、辽宁话）； • 16k_en：英语； • 16k_yue：粤语； • 16k_ja：日语； • 16k_ko：韩语； • 16k_vi：越南语； • 16k_ms：马来语； • 16k_id：印度尼西亚语； • 16k_fil：菲律宾语； • 16k_th：泰语； • 16k_pt：葡萄牙语； • 16k_tr：土耳其语； • 16k_ar：阿拉伯语； • 16k_es：西班牙语； • 16k_hi：印地语； • 16k_zh_medical：中文医疗引擎 示例值：16k_zh |
 | ChannelNum         | 是   | Integer | 识别声道数 1：单声道（16k音频仅支持单声道，**请勿**设置为双声道）； 2：双声道（仅支持8k电话音频，且双声道应分别为通话双方）  注意： • 16k音频：仅支持单声道识别，**需设置ChannelNum=1**； • 8k电话音频：支持单声道、双声道识别，**建议设置ChannelNum=2，即双声道**。双声道能够物理区分说话人、避免说话双方重叠产生的识别错误，能达到最好的说话人分离效果和识别效果。设置双声道后，将自动区分说话人，因此**无需再开启说话人分离功能**，相关参数（**SpeakerDiarization、SpeakerNumber**）使用默认值即可 示例值：1 |
 | ResTextFormat      | 是   | Integer | 识别结果返回样式 0：基础识别结果（仅包含有效人声时间戳，无词粒度的[详细识别结果](https://cloud.tencent.com/document/api/1093/37824#SentenceDetail)）； 1：基础识别结果之上，增加词粒度的[详细识别结果](https://cloud.tencent.com/document/api/1093/37824#SentenceDetail)（包含词级别时间戳、语速值，**不含标点**）； 2：基础识别结果之上，增加词粒度的[详细识别结果](https://cloud.tencent.com/document/api/1093/37824#SentenceDetail)（包含词级别时间戳、语速值和标点）； 3：基础识别结果之上，增加词粒度的[详细识别结果](https://cloud.tencent.com/document/api/1093/37824#SentenceDetail)（包含词级别时间戳、语速值和标点），且识别结果按标点符号分段，**适用字幕场景**； 4：**【增值付费功能】**基础识别结果之上，增加词粒度的[详细识别结果](https://cloud.tencent.com/document/api/1093/37824#SentenceDetail)（包含词级别时间戳、语速值和标点），且识别结果按nlp语义分段，**适用会议、庭审记录转写等场景**，仅支持8k_zh/16k_zh引擎 5：**【增值付费功能】**基础识别结果之上，增加词粒度的[详细识别结果](https://cloud.tencent.com/document/api/1093/37824#SentenceDetail)（包含词级别时间戳、语速值和标点），并输出口语转书面语转写结果，该结果去除语气词、重复词、精简冗余表达，并修正发言人口误，实现口语转书面语的效果，**适用于线上、线下会议直接总结为书面会议纪要的场景**，仅支持8k_zh/16k_zh引擎  注意： 如果传入参数值4，需确保账号已购买[语义分段资源包](https://cloud.tencent.com/document/product/1093/35686#97ae4aa0-29a0-4066-9f07-ccaf8856a16b)，或账号开启后付费；**若当前账号已开启后付费功能，并传入参数值4，将[自动计费](https://cloud.tencent.com/document/product/1093/35686#d912167d-ffd5-41a9-8b1c-2e89845a6852)** 如果传入参数值5，需确保账号已购买[口语转书面语资源包](https://cloud.tencent.com/document/product/1093/35686#97ae4aa0-29a0-4066-9f07-ccaf8856a16b)，或账号开启后付费；**若当前账号已开启后付费功能，并传入参数值5，将自动计费[自动计费](https://cloud.tencent.com/document/product/1093/35686#d912167d-ffd5-41a9-8b1c-2e89845a6852)** 示例值：0 |
@@ -74,14 +47,14 @@
 | SentenceMaxLength  | 否   | Integer | 单标点最多字数 **可控制单行字幕最大字数，适用于字幕生成场景**，取值范围：[6，40] 0：不开启该功能； 默认值为0  注意：需设置ResTextFormat为3，解析返回的ResultDetail列表，通过结构中FinalSentence获取单个标点断句结果 示例值：0 |
 | Extra              | 否   | String  | 附加参数**（该参数无意义，忽略即可）**                       |
 
-## 3. 输出参数
+### 3. 输出参数
 
 | 参数名称  | 类型                                                         | 描述                                                         |
 | :-------- | :----------------------------------------------------------- | :----------------------------------------------------------- |
 | Data      | [Task](https://cloud.tencent.com/document/api/1093/37824#Task) | 录音文件识别的请求返回结果，包含结果查询需要的TaskId         |
 | RequestId | String                                                       | 唯一请求 ID，每次请求都会返回。定位问题时需要提供该次请求的 RequestId。 |
 
-## 4. 示例
+### 4. 示例
 
 ### 示例1 通过音频Url来调用接口
 
