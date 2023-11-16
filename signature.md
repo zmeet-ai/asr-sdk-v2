@@ -182,3 +182,238 @@ public class EncryptUtil {
 ```text
 	wss://translate.abcpen.com/v1/asr/ws?appid=595f23df&ts=1512041814&signa=IrrzsJeOFk1NGfJHW6SkHUoN9CU=&pd=edu
 ```
+
+### 3. kotlin
+
+```kotlin
+import java.security.MessageDigest
+import javax.crypto.Mac
+import javax.crypto.spec.SecretKeySpec
+import java.util.Base64
+
+fun getSignatureFlytek(ts: String, appId: String, appSecret: String): String {
+    val tt = (appId + ts).toByteArray(Charsets.UTF_8)
+    val md5 = MessageDigest.getInstance("MD5")
+    val baseString = md5.digest(tt).joinToString("") { "%02x".format(it) }
+        .toByteArray(Charsets.UTF_8)
+
+    val apiKey = appSecret.toByteArray(Charsets.UTF_8)
+    val hmac = Mac.getInstance("HmacSHA1")
+    val secretKey = SecretKeySpec(apiKey, "HmacSHA1")
+    hmac.init(secretKey)
+    val signa = hmac.doFinal(baseString)
+    val encodedSigna = Base64.getEncoder().encodeToString(signa)
+    return encodedSigna
+}
+
+fun main() {
+    val ts = System.currentTimeMillis().toString()
+    val appId = "your_app_id"
+    val appSecret = "your_app_secret"
+    val signature = getSignatureFlytek(ts, appId, appSecret)
+    println("Signature: $signature")
+}
+
+```
+
+### 4. NodeJs
+
+```js
+const crypto = require('crypto');
+
+function getSignatureFlytek(ts, appId, appSecret) {
+    const tt = (appId + ts);
+    const baseString = crypto.createHash('md5').update(tt, 'utf-8').digest('hex');
+
+    const apiKey = Buffer.from(appSecret, 'utf-8');
+    const hmac = crypto.createHmac('sha1', apiKey);
+    const signa = hmac.update(baseString, 'utf-8').digest('binary');
+
+    const encodedSigna = Buffer.from(signa, 'binary').toString('base64');
+    return encodedSigna;
+}
+
+// Example usage:
+const ts = Date.now().toString();
+const appId = 'your_app_id';
+const appSecret = 'your_app_secret';
+const signature = getSignatureFlytek(ts, appId, appSecret);
+console.log(`Signature: ${signature}`);
+
+```
+
+### 5. C++
+
+```c++
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+#include <openssl/md5.h>
+#include <openssl/hmac.h>
+#include <openssl/bio.h>
+#include <openssl/evp.h>
+
+std::string getSignatureFlytek(const std::string& ts, const std::string& appId, const std::string& appSecret) {
+    std::string tt = appId + ts;
+
+    // Calculate MD5
+    unsigned char md5Result[MD5_DIGEST_LENGTH];
+    MD5(reinterpret_cast<const unsigned char*>(tt.c_str()), tt.length(), md5Result);
+
+    std::stringstream md5Stream;
+    for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
+        md5Stream << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(md5Result[i]);
+    }
+    std::string baseString = md5Stream.str();
+
+    // Calculate HMAC-SHA1
+    unsigned char hmacResult[EVP_MAX_MD_SIZE];
+    unsigned int hmacLen;
+    HMAC(EVP_sha1(), appSecret.c_str(), appSecret.length(), reinterpret_cast<const unsigned char*>(baseString.c_str()), baseString.length(), hmacResult, &hmacLen);
+
+    // Encode to base64
+    BIO *bio, *b64;
+    BIO_new(&bio);
+    BIO_new(BIO_f_base64());
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    BIO_push(b64, bio);
+    BIO_write(b64, hmacResult, hmacLen);
+    BIO_flush(b64);
+
+    char* encodedResult;
+    long encodedLen = BIO_get_mem_data(b64, &encodedResult);
+    std::string encodedSigna(encodedResult, encodedLen);
+
+    // Clean up
+    BIO_free_all(b64);
+
+    return encodedSigna;
+}
+
+int main() {
+    std::string ts = std::to_string(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+    std::string appId = "your_app_id";
+    std::string appSecret = "your_app_secret";
+
+    std::string signature = getSignatureFlytek(ts, appId, appSecret);
+    std::cout << "Signature: " << signature << std::endl;
+
+    return 0;
+}
+
+```
+
+### 6. Go
+
+```golang
+package main
+
+import (
+	"crypto/hmac"
+	"crypto/md5" 
+	"crypto/sha1"
+	"encoding/base64"
+	"encoding/hex"
+	"fmt"
+)
+
+func getSignatureFlytek(ts string, appID string, appSecret string) string {
+	
+	tt := []byte(appID + ts)
+	
+	hash := md5.New()
+	hash.Write(tt)
+	baseString := hex.EncodeToString(hash.Sum(nil))
+	
+	apiKey := []byte(appSecret)
+	h := hmac.New(sha1.New, apiKey)
+	h.Write([]byte(baseString))
+	signa := h.Sum(nil)
+	
+	return base64.StdEncoding.EncodeToString(signa)
+}
+
+func main() {
+   ts := "1674496098"
+   appID := "xxx"
+   appSecret := "xxx"
+   
+   sign := getSignatureFlytek(ts, appID, appSecret)
+   fmt.Println(sign)
+}
+```
+
+### 7. Php
+
+```php
+<?php
+
+function getSignatureFlytek($ts, $app_id, $app_secret) {
+
+  $tt = $app_id . $ts;
+  
+  $md5 = md5($tt);
+  $baseString = $md5;
+
+  $apiKey = $app_secret;
+  $signa = hash_hmac('sha1', $baseString, $apiKey, true);
+  
+  $signa = base64_encode($signa);
+
+  return $signa; 
+
+}
+
+
+$ts = "1674496098";
+$app_id = "xxx";
+$app_secret = "xxx";
+
+$sign = getSignatureFlytek($ts, $app_id, $app_secret);
+
+echo $sign;
+
+?>
+```
+
+
+
+### 8. C#
+
+````c#
+using System;
+using System.Security.Cryptography;
+using System.Text;
+
+class SignatureGenerator 
+{
+  static string GetSignatureFlytek(string ts, string appId, string appSecret) 
+  {
+    byte[] tt = Encoding.UTF8.GetBytes(appId + ts);
+    
+    MD5 md5 = MD5.Create();
+    byte[] hash = md5.ComputeHash(tt);
+
+    string baseString = BitConverter.ToString(hash).Replace("-", "").ToLower();
+
+    byte[] apiKey = Encoding.UTF8.GetBytes(appSecret);
+   
+    using (HMACSHA1 hmac = new HMACSHA1(apiKey))
+    {
+      byte[] signa = hmac.ComputeHash(Encoding.UTF8.GetBytes(baseString));
+      return Convert.ToBase64String(signa);  
+    }
+  }
+
+  static void Main() 
+  {
+    string ts = "1674496098";
+    string appId = "xxx";
+    string appSecret = "xxx";
+      
+    string sign = GetSignatureFlytek(ts, appId, appSecret); 
+    Console.WriteLine(sign);
+  }
+}
+````
+
