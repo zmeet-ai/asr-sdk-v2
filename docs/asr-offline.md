@@ -4,16 +4,16 @@
 
 接口请求域名： https://asr-prod.abcpen.com/v2/asr/long
 
-本接口可对较长的录音文件进行识别。
-• 接口默认限频：20次/秒。此处仅限制任务提交频次，与识别结果返回时效无关
-• 返回时效：异步回调，非实时返回。最长3小时返回识别结果，**大多数情况下，1小时的音频1-3分钟即可完成识别**。请注意：上述返回时长不含音频下载时延，且30分钟内发送超过1000小时录音或2万条任务的情况除外
-• 媒体文件格式：**支持几乎所有音视频文件格式**，如mp4, avi, mkv, mov, wmv, flv, webm, mpeg, mpg, h264, hevc, wav、mp3、m4a、flv、mp4、wma、3gp、amr、aac、ogg-opus、flac
-• 支持语言：[支持100种国家语言](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md)
-• 音频提交方式：本接口支持**音频 URL 、本地音频文件**两种请求方式。推荐使用[阿里云对象存储OSS](https://www.aliyun.com/product/oss?spm=5176.28508143.J_4VYgf18xNlTAyFFbOuOQe.60.e939154aMOdAFn) 、[亚马逊S3](about:blank)和 [腾讯云COS](https://cloud.tencent.com/document/product/436/38484) 等对象存储来存储、生成URL并提交任务，存储桶权限需要设置公有读私有写，或URL设置外部可访问
-• 音频限制：音频 URL 时长不能大于5小时，文件大小不超过1GB；本地音频文件不能大于5MB
-• 如何获取识别结果：支持**回调或轮询**的方式获取结果，具体请参考 [录音文件识别结果查询](https://cloud.tencent.com/document/product/1093/37822)
-• 识别结果有效时间：在服务端保存7天
-• 签名方法参考 [公共参数](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/signature.md) 中签名方法
+- 本接口可对较长的录音文件进行识别。
+- 接口默认限频：20次/秒。此处仅限制任务提交频次，与识别结果返回时效无关
+- 返回时效：异步回调，非实时返回。最长3小时返回识别结果，**大多数情况下，1小时的音频1-3分钟即可完成识别**。请注意：上述返回时长不含音频下载时延，且30分钟内发送超过1000小时录音或2万条任务的情况除外
+- 媒体文件格式：**支持几乎所有音视频文件格式**，如mp4, avi, mkv, mov, wmv, flv, webm, mpeg, mpg, h264, hevc, wav、mp3、m4a、flv、mp4、wma、3gp、amr、aac、ogg-opus、flac
+- 支持语言：[支持100种国家语言](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md)
+-  音频提交方式：本接口支持**音频 URL 、本地音频文件**两种请求方式。推荐使用[阿里云对象存储OSS](https://www.aliyun.com/product/oss?spm=5176.28508143.J_4VYgf18xNlTAyFFbOuOQe.60.e939154aMOdAFn) 、[亚马逊S3](about:blank)和 [腾讯云COS](https://cloud.tencent.com/document/product/436/38484) 等对象存储来存储、生成URL并提交任务，存储桶权限需要设置公有读私有写，或URL设置外部可访问
+-  音频限制：音频 URL 时长不能大于5小时，文件大小不超过1GB；本地音频文件不能大于5MB
+-  如何获取识别结果：支持**回调或轮询**的方式获取结果，具体请参考 [录音文件识别结果查询](https://cloud.tencent.com/document/product/1093/37822)
+-  识别结果有效时间：在服务端保存7天
+-  签名方法参考 [公共参数](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/signature.md) 中签名方法
 
 默认接口请求频率限制：20次/秒。
 
