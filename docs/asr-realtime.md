@@ -65,8 +65,8 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 | ts                | string | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
 | signa             | string | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
 | trans_mode        | string | 否   | 为“1”，启动同声翻译，这时必须设置目标语言（target_lang); 为“0”， 不启动同声翻译 | 1                                                            |
-| source_lang       | string | 否   | 实时语音转写语种，也就是源语言；不传自动识别                 | 语种类型：中文、中英混合识别：cn；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/>更多语言参考本文附录 |
-| target_lang       | string | 否   | 启动实时翻译的时候，设置的目标语言                           | 语种类型：中文、中英混合识别：cn；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/>更多语言参考本文附录 |
+| source_lang       | string | 否   | 实时语音转写语种，也就是源语言；不传自动识别                 | 语种类型：中文、中英混合识别：zh；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/> 更多参考[国家编码](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md) |
+| target_lang       | string | 否   | 启动实时翻译的时候，设置的目标语言                           | 语种类型：中文、中英混合识别：zh；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/>更多参考 [国家编码](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md) |
 | punc              | string | 否   | 标点过滤控制，默认返回标点，punc=0会过滤结果中的标点         | 1                                                            |
 | speaker_number    | string | 否   | 发音人个数，可选值：0-10，0表示盲分                          | 默认：2（适用通话时两个人对话的场景）                        |
 | scene             | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
