@@ -96,6 +96,7 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
   * src_lang:  源语言，如“zh', "de"等；如输入空格字符串表示自动识别源语言
   * tgt_lang: 目标语言，如”de", "ja" 等
   * 常见翻译语种：控制把源语言转换成什么类型的语言；<br/>中文：cn<br/>英文：en<br/>日语：ja<br/>韩语：ko<br/>俄语：ru<br/>法语：fr<br/>西班牙语：es<br/>意大利：vi<br/>
+  * 可选国家编码列表有：af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fo, fr, gl, gu, ha, haw, he, hi, hr, ht, hu, hy, id, is, it, ja, jw, ka, kk, km, kn, ko, la, lb, ln, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, nn, no, oc, pa, pl, ps, pt, ro, ru, sa, sd, si, sk, sl, sn, so, sq, sr, su, sv, sw, ta, te, tg, th, tk, tl, tr, tt, uk, ur, uz, vi, yi, yo, zh
 * enabled： 是否打开同声传译，1表示打开，0表示关闭同声传译
 
 ### （2）、signa生成
