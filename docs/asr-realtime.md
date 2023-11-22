@@ -107,13 +107,13 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 结果格式为json，字段说明如下：
 
-| 参数   | 类型   | 说明                              |
-| :----- | :----- | :-------------------------------- |
-| action | string | 结果标识，result:结果，error:异常 |
-| code   | string | 结果码(具体见[错误码](错误码))    |
-| data   | string | 结果数据                          |
-| desc   | string | 描述                              |
-| sid    | string | 会话ID                            |
+| 参数   | 类型   | 说明                                       |
+| :----- | :----- | :----------------------------------------- |
+| action | string | 结果标识，result:结果，error:异常          |
+| code   | string | 结果码(具体见<a href="#错误码">错误码</a>) |
+| data   | string | 结果数据                                   |
+| desc   | string | 描述                                       |
+| sid    | string | 会话ID                                     |
 
 其中sid字段主要用于DEBUG追查问题，如果出现问题，可以提供sid帮助确认问题。
 
