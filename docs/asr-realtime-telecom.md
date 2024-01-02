@@ -29,7 +29,7 @@
 | 内容     | 说明                                                         |
 | :------- | ------------------------------------------------------------ |
 | 请求协议 | wss                                                          |
-| 请求地址 | wss: //asr-prod.abcpen.com/v2/asr/ws?{请求参数} *注：服务器IP不固定，为保证您的接口稳定，请勿通过指定IP的方式调用接口，使用域名方式调用* |
+| 请求地址 | wss: //asr-pre.abcpen.com:8443/v2/asr/ws?{请求参数} *注：服务器IP不固定，为保证您的接口稳定，请勿通过指定IP的方式调用接口，使用域名方式调用* |
 | 接口鉴权 | 签名机制，详见 [signa生成](#signa生成)                       |
 | 响应格式 | 统一采用JSON格式                                             |
 | 开发语言 | 任意，只要可以向笔声云服务发起WebSocket请求的均可            |
@@ -48,7 +48,7 @@
 接口地址
 
 ```bash
-wss://asr-prod.abcpen.com/v2/asr/ws?{请求参数}
+wss://asr-pre.abcpen.com:8443/v2/asr/ws?{请求参数}
 ```
 
    
@@ -61,23 +61,19 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 参数说明
 
-| 参数              | 类型    | 必须 | 说明                                                         | 示例                                                         |
-| :---------------- | :------ | :--- | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| appid             | string  | 是   | 笔声开放平台应用ID                                           | 595f23df                                                     |
-| ts                | string  | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
-| signa             | string  | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
-| trans_mode        | string  | 否   | 为“1”，启动同声翻译，这时必须设置目标语言（target_lang); 为“0”， 不启动同声翻译 | 0                                                            |
-| language          | string  | 否   | 实时语音转写语种，也就是源语言;  如果用在实时翻译的时候，则是源语言 | 语种类型：中文、中英混合识别：zh；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/> 更多参考[国家编码](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md) |
-| target_lang       | string  | 否   | 启动实时翻译的时候，设置的目标语言                           | 语种类型：中文、中英混合识别：zh；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/>更多参考 [国家编码](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md) |
-| punc              | string  | 否   | 标点过滤控制，默认返回标点，punc=0会过滤结果中的标点         | 1                                                            |
-| speaker_number    | string  | 否   | 发音人个数，可选值：0-10，0表示盲分                          | 默认：2（适用通话时两个人对话的场景）                        |
-| scene             | string  | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
-| audio_sample_rate | string  | 否   | 音频采样率，有"8000", "16000"，分别代表采样率是8K和16K，默认是“16000” | “16000”                                                      |
-| asr_type          | string  | 否   | 识别结果输出类型，sentence，不输出逐字和逐句结果 ；word，输出逐字和逐句结果，默认为fast。 建议选择"sentence" | "sentence"                                                   |
-| recall            | string  | 否   | 是否启用回溯识别模式。true(启用回溯模式，客户端需要根据返回数据不断回溯修改)； normal(不启用回溯识别模式，速度快）。 | "normal"                                                     |
-| noise_threshold   | float   | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果** | 0.5                                                          |
-| max_speak_time    | Integer |      | 强制断句功能，取值范围 5000-100000(单位:毫秒），默认值0(不开启)。 在连续说话不间断情况下，该参数将实现强制断句（此时结果变成稳态，）。如：游戏解说场景，解说员持续不间断解说，无法断句的情况下，将此参数设置为10000。 | 0                                                            |
-| vad_silence_time  |         |      | 语音断句检测阈值，静音时长超过该阈值会被认为断句（多用在智能客服场景），取值范围：240-2000（默认1000），单位 ms，此参数建议不要随意调整，可能会影响识别效果。 | 250                                                          |
+| 参数              | 类型   | 必须 | 说明                                                         | 示例                                                         |
+| :---------------- | :----- | :--- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| appid             | string | 是   | 笔声开放平台应用ID                                           | 595f23df                                                     |
+| ts                | string | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
+| signa             | string | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
+| trans_mode        | string | 否   | 为“1”，启动同声翻译，这时必须设置目标语言（target_lang); 为“0”， 不启动同声翻译 | 0                                                            |
+| source_lang       | string | 否   | 实时语音转写语种，也就是源语言；不传自动识别                 | 语种类型：中文、中英混合识别：zh；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/> 更多参考[国家编码](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md) |
+| target_lang       | string | 否   | 启动实时翻译的时候，设置的目标语言                           | 语种类型：中文、中英混合识别：zh；<br/>英文："en" <br/>德文："de" <br/>法语："fr" <br/> 西班牙语："es" <br/>意大利："it" <br/>俄罗斯："ru" <br/> 日语 "ja" <br/>韩国 "ko" <br/>更多参考 [国家编码](https://github.com/zmeet-ai/asr-sdk-v2/blob/main/docs/country_code.md) |
+| punc              | string | 否   | 标点过滤控制，默认返回标点，punc=0会过滤结果中的标点         | 1                                                            |
+| speaker_number    | string | 否   | 发音人个数，可选值：0-10，0表示盲分                          | 默认：2（适用通话时两个人对话的场景）                        |
+| scene             | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
+| audio_sample_rate | string | 否   | 音频采样率，有"8000", "16000"，分别代表采样率是8K和16K，默认是“16000” | “16000”                                                      |
+| asr_type          | string | 否   | 识别结果输出类型，0，不输出逐字和逐句结果；1，输出逐字和逐句结果，默认为0不输出 | “0”                                                          |
 
 （2）、实时变更同声传译参数, 可在实时识别的时候传输下面的json字符串，以实时变更输出结果，如是否启动同声传译，启动同声传译时候的目标语言；是否对识别结果打标点符号；识别场景切换等。
 
@@ -106,7 +102,92 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 * enabled： 是否打开同声传译，1表示打开，0表示关闭同声传译
 
 ### signa生成
+### 针对天翼云（理想），我们采用了不同的验证模式
+#### 天翼云和笔声之间的交互
+* 天翼云采用笔声提供的appid, appsecret做正常的验证模式，同时传输cust_app_id这个字段。其中cust_app_id表示天翼云下面的终端客户，或者说是直接客户(如“xiamen_telecom”)
+* 验证通过后，笔声回传token给天翼云
+* 天翼云将token回传给终端客户
+#### 天翼云终端客户和笔声之间的交互
+* 终端客户，拿着天翼云给他的token，传入两个参数：X-App-Cust-Id 和X-App-Cust-Token，其中X-App-Cust-Id是客户的编码id，如“xiamen_telecom”, X-App-Cust-Token是天翼云回传的token
 
+####  天翼云和笔声之间的验证代码
+```
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.text.MessageFormat;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
+public class Main {
+
+    private static final String API_URL = "http://asr-dev.abcpen.com"; 
+
+    public static void main(String[] args) {
+        try {
+            for (int i = 0; i < 1; i++) {
+                testToken(API_URL);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void testToken(String apiUrl) throws Exception {
+        String appId = "test1";
+        String appSecret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
+        String[] signatureAndTimestamp = generateSignature(appId, appSecret);
+        String signature = signatureAndTimestamp[0];
+        String timestamp = signatureAndTimestamp[1];
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("X-App-Key", appId);
+        headers.put("X-App-Signature", signature);
+        headers.put("X-Timestamp", timestamp);
+
+        String endpoint = MessageFormat.format("{0}/v2/auth/token", apiUrl);
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(endpoint)
+                .newBuilder()
+                .addQueryParameter("cust_app_id", "xiamen");
+
+        Request request = new Request.Builder()
+                .url(urlBuilder.build())
+                .headers(okhttp3.Headers.of(headers))
+                .get()
+                .build();
+
+        long startTime = System.nanoTime();
+        try (Response response = new OkHttpClient().newCall(request).execute()) {
+            String responseBody = response.body() != null ? response.body().string() : "";
+            System.out.println("response: " + responseBody + ", =====>>>time: "
+                    + (System.nanoTime() - startTime) / 1e9 + "s");
+        }
+    }
+
+    private static String[] generateSignature(String appId, String apiKey)
+            throws NoSuchAlgorithmException, InvalidKeyException {
+        String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
+        String baseString = appId + timestamp;
+
+        Mac sha1Hmac = Mac.getInstance("HmacSHA1");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(apiKey.getBytes(), "HmacSHA1");
+        sha1Hmac.init(secretKeySpec);
+
+        byte[] signatureBytes = sha1Hmac.doFinal(baseString.getBytes());
+        String signature = Base64.getEncoder().encodeToString(signatureBytes);
+
+        return new String[]{signature, timestamp};
+    }
+}
+
+```
 
 
 ### 返回值
