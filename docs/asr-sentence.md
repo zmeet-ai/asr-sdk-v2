@@ -40,12 +40,13 @@ headers = {
     "X-App-Key": app_id,
     "X-App-Signature": signature,
     "X-Timestamp": ts,
-  }
+    "Content-Type": "application/json"
+}
 json = {
     "punc": True,
     "audio_url": "https://zos.abcpen.com/tts/zmeet/20221023/b6a2c7ac-52c8-11ed-961e-00155dc6cbed.mp3",
     "language": "zh"
-  }
+}
 requests.post(url, headers=headers, data=json)
 ```
 

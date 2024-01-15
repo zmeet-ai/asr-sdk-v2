@@ -61,12 +61,13 @@ headers = {
     "X-App-Key": app_id,
     "X-App-Signature": signature,
     "X-Timestamp": ts,
-  }
+    "Content-Type": "application/json"
+}
 json = {
     "sd": "true",
     "input_audio_url": "https://zos.abcpen.com/tts/zmeet/20221023/b6a2c7ac-52c8-11ed-961e-00155dc6cbed.mp3",
     "language": "zh"
-  }
+}
 response = requests.post(url_create, headers=headers, data=json)
 response_json = json.loads(response.text)
 
