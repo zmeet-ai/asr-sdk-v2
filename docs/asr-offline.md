@@ -3,8 +3,8 @@
 ### 1. 接口描述
 
 接口请求域名： 
-- 创建任务：https://asr-prod.abcpen.com/v2/asr/long/create
-- 查询任务：https://asr-prod.abcpen.com/v2/asr/long/query
+- 创建任务：https://asr-pre.abcpen.com:8443/v2/asr/long/create
+- 查询任务：https://asr-pre.abcpen.com:8443/v2/asr/long/query
 - 本接口可对较长的录音文件进行识别。
 - 接口默认限频：20次/秒。此处仅限制任务提交频次，与识别结果返回时效无关
 - 返回时效：异步回调，非实时返回。最长3小时返回识别结果，**大多数情况下，1小时的音频1-3分钟即可完成识别**。请注意：上述返回时长不含音频下载时延，且30分钟内发送超过1000小时录音或2万条任务的情况除外
