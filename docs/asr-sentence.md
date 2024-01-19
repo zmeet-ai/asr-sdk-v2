@@ -33,7 +33,7 @@ headers = {
     "Content-Type": "application/json"
 }
 json = {
-    "punc": True,
+    "punc": "true",
     "audio_url": "https://zos.abcpen.com/tts/zmeet/20221023/b6a2c7ac-52c8-11ed-961e-00155dc6cbed.mp3",
     "language": "zh"
 }
