@@ -20,3 +20,13 @@
 ```
 /v1/asr/sd 和 /v2/asr/sd 开通的api路径 统一合并到 /asr/v2/long/create
 ```
+
+## 离线识别接口
+### 离线识别接口发生了重大变动，该接口涵盖如下功能，具体以audio_type这个字段做区分
+* asr: 只做语音识别
+* asr_sd: 语音识别+说话人区分
+* asr_sd_id: 语音识别+说话人区分+说话人识别
+* audio_separate: 人声分离
+* audio_separate_asr: 语音识别+说话人区分
+* audio_separate_asr_sd: 语音识别+说话人区分+人声分离
+* audio_separate_asr_sd_id: 语音识别+说话人区分+说话人识别+人声分离
