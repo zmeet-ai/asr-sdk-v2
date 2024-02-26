@@ -26,14 +26,14 @@
 
 | 参数名称           | 必选 | 类型    | 描述                                                         | 默认值 |
 | :----------------- | :--- | :------ | :----------------------------------------------------------- | ------ |
-| pd              | 否   | String  | 通用: general <br/>法律: law <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car<br/>游戏: game<br/>历史: history<br/>互联网: com<br/>娱乐: amuse<br/> |        |
+| pd              | 否   | String  | 通用: general <br/>法律: law <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car<br/>游戏: game<br/>历史: history<br/>互联网: com<br/>娱乐: amuse<br/> | general |
 | input_audio_url                | 是   | String  | 音频URL的地址（需要公网环境浏览器可下载） 注意： 1. 请确保录音文件时长在5个小时（含）之内，否则可能识别失败； 2. 请保证文件的下载速度，否则可能下载失败 示例值：https://audio.cos.ap-guangzhou.myqcloud.com/example.wav |        |
 | callback_url        | 否   | String  | 回调 URL 用户自行搭建的用于接收识别结果的服务URL 回调格式和内容详见：[录音识别回调说明](https://cloud.tencent.com/document/product/1093/52632)  注意： 如果用户使用轮询方式获取识别结果，则无需提交该参数 |        |
-| sd | 否   | String | 是否开启说话人分离 false：不开启； true：开启（仅支持以下引擎：8k_zh/16k_zh/16k_ms/16k_en/16k_id，且ChannelNum=1时可用）； 默认值为 0  注意： 8k双声道电话音频请按 **ChannelNum 识别声道数** 的参数描述使用默认值 示例值：0 |        |
-| min_speaker_num      | 否   | Integer | 最小发言者数量 **需配合开启说话人分离使用，不开启无效**，取值范围：0-10 0：自动分离（最多分离出20个人）； 1-10：指定人数分离； 默认值为 0 示例值：0 |        |
-| max_speaker_num      | 否   | Integer | 最大发言者数量 **需配合开启说话人分离使用，不开启无效**，取值范围：0-10 0：自动分离（最多分离出20个人）； 1-10：指定人数分离； 默认值为 0 示例值：0 |        |    |
+| min_speaker_num      | 否   | Integer | 最小发言者数量 **需配合开启说话人分离使用，不开启无效**，取值范围：0-10 0：自动分离（最多分离出20个人）； 1-10：指定人数分离； 默认值为 0 示例值：0 | 0 |
+| max_speaker_num      | 否   | Integer | 最大发言者数量 **需配合开启说话人分离使用，不开启无效**，取值范围：0-10 0：自动分离（最多分离出20个人）； 1-10：指定人数分离； 默认值为 0 示例值：0 | 0 |
 | language        | 否   | String  | 语言 默认zh |    |
-| words_output        | 否   | String  | 是否输出单词 false：不开启；true：开启    |
+| words_output        | 否   | String  | 是否输出单词 false：不开启；true：开启    ||
+| audio_type | 否 | String | asr: 只做语音识别 <br/>asr_sd: 语音识别+说话人区分 <br/>asr_sd_id: 语音识别+说话人区分+说话人识别 <br/>audio_separate: 人声分离 <br/>audio_separate_asr: 语音识别+说话人区分 <br/>audio_separate_asr_sd: 语音识别+说话人区分+人声分离 <br/>audio_separate_asr_sd_id: 语音识别+说话人区分+说话人识别+人声分离 |asr|
 
 ### 3. 输出参数
 
