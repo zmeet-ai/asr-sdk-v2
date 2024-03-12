@@ -35,6 +35,13 @@
 
 默认接口请求频率限制：20次/秒。
 
+* 备注-下面2个接口是目前版本的加速版本
+    * 接口请求域名： 
+    - 创建任务：https://asr-pre.abcpen.com:8443/asr-rec/v1/long/create
+    - 查询任务：https://asr-pre.abcpen.com:8443/asr-rec/v1/long/query
+    * 注意点
+    * 只接受音频文件做识别，识别速度相比v2版本速度提升4倍以上
+    * 返回接口类似	
 
 
 ### 2. 输入参数
