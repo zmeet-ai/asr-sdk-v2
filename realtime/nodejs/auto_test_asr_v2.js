@@ -1,111 +1,144 @@
 const WebSocket = require('ws');
 const fs = require('fs');
 const crypto = require('crypto');
+const path = require('path');
+const { program } = require('commander');
 
-const timePerChunk = 0.1; // seconds
-const numChannel = 1;
-const numQuantify = 16;
-const sampleRate = 16000;
-const bytesPerChunk = Math.floor(sampleRate * numQuantify * timePerChunk * numChannel / 8);
+// 常量定义
+const TIME_PER_CHUNK = 0.2;  // 每次发送的音频数据的时间长度，单位：s
+const NUM_CHANNEL = 1;  // 声道数
+const NUM_QUANTIFY = 16;  // 量化位数
+const SAMPLE_RATE = 16000;  // 采样频率
+const BYTES_PER_CHUNK = Math.floor(SAMPLE_RATE * NUM_QUANTIFY * TIME_PER_CHUNK * NUM_CHANNEL / 8);
+const SLEEP_TIME_DURATION = 100; // 100ms, 转换为毫秒
 
-const apiUrl = 'wss://asr-dev.abcpen.com';
-
+// 生成签名
 function generateSignature(appId, apiKey) {
     const ts = Math.floor(Date.now() / 1000).toString();
-    const tt = Buffer.from(appId + ts, 'utf-8');
     const md5 = crypto.createHash('md5');
-    md5.update(tt);
-    const baseString = md5.digest('hex');
-    const apiKeyBuffer = Buffer.from(apiKey, 'utf-8');
-    const hmacSha1 = crypto.createHmac('sha1', apiKeyBuffer);
-    hmacSha1.update(Buffer.from(baseString, 'utf-8'));
-    const signa = hmacSha1.digest('base64');
+    md5.update(appId + ts);
+    const baseString = md5.digest();
+    
+    const hmac = crypto.createHmac('sha1', apiKey);
+    hmac.update(baseString);
+    const signa = hmac.digest('base64');
+    
     return { signa, ts };
 }
 
-async function sendAudioData(websocket) {
-    const filename = '../dataset/3-1.wav';
-    const fileData = fs.readFileSync(filename);
-    const waveFileSampleRate = 16000; // Assuming a constant sample rate
-    const numSamples = fileData.length / 2; // Assuming 16-bit samples
-    const chunkSize = Math.floor(timePerChunk * waveFileSampleRate * 2);
-
-    let start = 0;
-    while (start < numSamples * 2) {
-        const end = Math.min(start + chunkSize, numSamples * 2);
-        const chunk = fileData.slice(start, end);
-        await websocket.send(chunk);
-        start = end;
-        await new Promise(resolve => setTimeout(resolve, 30)); // Sleep for 30 milliseconds
-    }
-}
-
-async function receiveRecognitionResult(websocket) {
-    let segSentence = 0;
-
-    function waitForMessage() {
-        return new Promise((resolve, reject) => {
-            websocket.once('message', (result) => resolve(result));
-            websocket.once('close', () => reject(new Error('Connection closed')));
-            websocket.once('error', (err) => reject(err));
+// 发送音频数据
+async function sendAudioData(ws) {
+    return new Promise((resolve, reject) => {
+        const filename = path.join(__dirname, "../dataset/test.wav");
+        const readStream = fs.createReadStream(filename, {
+            highWaterMark: BYTES_PER_CHUNK
         });
-    }
 
-    try {
-        while (true) {
-            const result = await waitForMessage();
-            const asrText = JSON.parse(result);
-            const asr = asrText.asr;
-            const asrPunc = asrText.asr_punc || '';
-            const segId = asrText.seg_id;
-            const isFinal = asrText.is_final;
-            const translate = asrText.translate || '';
+        const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-            if (isFinal) {
-                console.log(`${segSentence}:${asrPunc} -> ${translate}`);
-                segSentence++;
-            } else {
-                process.stdout.write(`${segSentence}:${asr} -> ${translate}`);
+        readStream.on('data', async chunk => {
+            const startTime = Date.now();
+            
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(chunk);
+                const elapsed = Date.now() - startTime;
+                if (elapsed < SLEEP_TIME_DURATION) {
+                    await sleep(SLEEP_TIME_DURATION - elapsed);
+                }
             }
-        }
-    } catch (err) {
-        console.error(`receiveRecognitionResult error: ${err}`);
-    }
+        });
+
+        readStream.on('end', () => {
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send('');  // 发送空字符串表示结束
+            }
+            resolve();
+        });
+
+        readStream.on('error', reject);
+    });
 }
 
-
-async function connectToServer() {
-    const appId = 'test1';
-    const appSecret = '2258ACC4-199B-4DCB-B6F3-C2485C63E85A';
-
-    const { signa, ts } = generateSignature(appId, appSecret);
-
-    const base_url = `${apiUrl}/v2/asr/ws`;
-    const urlAsrApply = `${base_url}?appid=${appId}&ts=${ts}&signa=${encodeURIComponent(signa)}&asr_type=2&trans_mode=1&target_lang=ru&pd=court`;
-
-    const websocket = new WebSocket(urlAsrApply);
-
-    websocket.on('open', async () => {
+// 接收识别结果
+function receiveRecognitionResult(ws, printMode) {
+    ws.on('message', data => {
+        if (!data) return;
+        
         try {
-            await sendAudioData(websocket);
+            const asrJson = JSON.parse(data);
+            const isFinal = asrJson.is_final || false;
+            const segId = asrJson.seg_id || 0;
+            const asr = asrJson.asr || "";
+            const type = asrJson.type || "";
+
+            if (printMode === "typewriter") {
+                if (type === "asr") {
+                    if (isFinal) {
+                        process.stdout.write(`\r${segId}:${asr}\n`);
+                    } else {
+                        process.stdout.write(`\r${segId}:${asr}`);
+                    }
+                }
+            } else {
+                if (isFinal) {
+                    console.warn(asrJson);
+                } else {
+                    console.log(asrJson);
+                }
+            }
         } catch (err) {
-            console.error(`sendAudioData error: ${err}`);
+            console.error('Error parsing message:', err);
         }
     });
-
-    websocket.on('close', () => {
-        console.log('Connection closed');
-    });
-
-    websocket.on('error', (err) => {
-        console.error(`WebSocket error: ${err}`);
-    });
-
-    await receiveRecognitionResult(websocket);
 }
 
-try {
-    connectToServer();
-} catch (err) {
-    console.error(`connectToServer error: ${err}`);
+async function connectToServer(printMode, asrType, recall) {
+    const appId = "test1";
+    const appSecret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
+    const baseUrl = "ws://192.168.2.141:2001/asr-realtime/v2/ws";
+    
+    const { signa, ts } = generateSignature(appId, appSecret);
+    const url = `${baseUrl}?appid=${appId}&ts=${ts}&signa=${encodeURIComponent(signa)}&asr_type=${asrType}&trans_mode=0&target_lang=ru&pd=court&recall=${recall}`;
+
+    const ws = new WebSocket(url);
+
+    return new Promise((resolve, reject) => {
+        ws.on('open', async () => {
+            console.log('Connected to server');
+            receiveRecognitionResult(ws, printMode);
+            
+            try {
+                await sendAudioData(ws);
+            } catch (err) {
+                console.error('Error sending audio:', err);
+                ws.close();
+            }
+        });
+
+        ws.on('error', err => {
+            console.error('WebSocket error:', err);
+            reject(err);
+        });
+
+        ws.on('close', () => {
+            console.log('Connection closed');
+            resolve();
+        });
+    });
 }
+
+// 命令行参数解析
+program
+    .option('--mode <type>', 'Output mode: typewriter or json', 'typewriter')
+    .option('--asr_type <type>', 'ASR recognition mode: sentence or word', 'word')
+    .option('--recall', 'Enable recall mode', true)
+    .parse(process.argv);
+
+const options = program.opts();
+
+// 主程序执行
+connectToServer(options.mode, options.asr_type, options.recall)
+    .catch(err => {
+        console.error('Program error:', err);
+        process.exit(1);
+    });
