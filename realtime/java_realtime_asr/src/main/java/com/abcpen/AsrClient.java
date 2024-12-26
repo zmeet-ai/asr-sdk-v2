@@ -35,12 +35,16 @@ public class AsrClient {
             (int) (SAMPLE_RATE * NUM_QUANTIFY * TIME_PER_CHUNK * NUM_CHANNEL / 8);
     private static final long SLEEP_TIME_DURATION = 50;
     private static final int MILLISECONDS_PER_SECOND = 1000;
+    private static final String TARGET_LANG = "ru";
+    private static final String PD = "court";
 
     private final String appId;
     private final String appSecret;
     private final String printMode;
     private final String asrType;
     private final String audioFile;
+    private final String transMode;
+    private final boolean recall;
     private WebSocketClient wsClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -54,11 +58,18 @@ public class AsrClient {
      * @param audioFile Path to the audio file
      */
     public AsrClient(String appId, String appSecret, String printMode, String asrType, String audioFile) {
+        this(appId, appSecret, printMode, asrType, audioFile, "0", true);
+    }
+
+    public AsrClient(String appId, String appSecret, String printMode, String asrType, 
+                    String audioFile, String transMode, boolean recall) {
         this.appId = appId;
         this.appSecret = appSecret;
         this.printMode = printMode;
         this.asrType = asrType;
         this.audioFile = audioFile;
+        this.transMode = transMode;
+        this.recall = recall;
     }
 
     /**
@@ -113,8 +124,9 @@ public class AsrClient {
             String ts = signatureData[1];
 
             String wsUrl = String.format(
-                    "wss://audio.abcpen.com:8443/asr-realtime/v2/ws?appid=%s&ts=%s&signa=%s&asr_type=%s",
-                    appId, ts, signa, asrType);
+                    "wss://audio.abcpen.com:8443/asr-realtime/v2/ws?appid=%s&ts=%s&signa=%s" +
+                    "&asr_type=%s&trans_mode=%s&target_lang=%s&pd=%s&recall=%s",
+                    appId, ts, signa, asrType, transMode, TARGET_LANG, PD, recall);
 
             wsClient = new WebSocketClient(new URI(wsUrl)) {
                 @Override
@@ -160,12 +172,15 @@ public class AsrClient {
         boolean isFinal = (boolean) asrJson.getOrDefault("is_final", false);
         int segId = (int) asrJson.getOrDefault("seg_id", 0);
         String asr = (String) asrJson.getOrDefault("asr", "");
+        String type = (String) asrJson.getOrDefault("type", "");
 
         if ("typewriter".equals(printMode)) {
-            if (isFinal) {
-                System.out.printf("\r%d:%s%n", segId, asr);
-            } else {
-                System.out.printf("\r%d:%s", segId, asr);
+            if ("asr".equals(type)) {
+                if (isFinal) {
+                    System.out.printf("\r%d:%s%n", segId, asr);
+                } else {
+                    System.out.printf("\r%d:%s", segId, asr);
+                }
             }
         } else {
             if (isFinal) {
@@ -204,7 +219,7 @@ public class AsrClient {
      */
     public static void main(String[] args) {
         if (args.length < 1) {
-            System.out.println("Usage: java -jar realtime_asr.jar <audio_file_path> [appId] [appSecret] [printMode] [asrType]");
+            System.out.println("Usage: java -jar realtime_asr.jar <audio_file_path> [appId] [appSecret] [printMode] [asrType] [transMode] [recall]");
             System.out.println("Default values:");
             System.out.println("  appId: test1");
             System.out.println("  appSecret: 2258ACC4-199B-4DCB-B6F3-C2485C63E85A");
@@ -218,8 +233,10 @@ public class AsrClient {
         String appSecret = args.length > 2 ? args[2] : "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
         String printMode = args.length > 3 ? args[3] : "typewriter";
         String asrType = args.length > 4 ? args[4] : "word";
+        String transMode = args.length > 5 ? args[5] : "0";
+        boolean recall = args.length > 6 ? Boolean.parseBoolean(args[6]) : true;
 
-        AsrClient client = new AsrClient(appId, appSecret, printMode, asrType, audioFile);
+        AsrClient client = new AsrClient(appId, appSecret, printMode, asrType, audioFile, transMode, recall);
         client.start();
     }
 }
