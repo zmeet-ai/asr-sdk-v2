@@ -218,26 +218,68 @@ public class AsrClient {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.out.println("Usage: java -jar realtime_asr.jar <audio_file_path> [appId] [appSecret] [printMode] [asrType] [transMode] [recall]");
-            System.out.println("Default values:");
-            System.out.println("  appId: test1");
-            System.out.println("  appSecret: 2258ACC4-199B-4DCB-B6F3-C2485C63E85A");
-            System.out.println("  printMode: typewriter");
-            System.out.println("  asrType: word");
+        if (args.length < 2) {
+            System.out.println("Usage: java -jar realtime_asr.jar <mode> <args>");
+            System.out.println("Modes:");
+            System.out.println("  asr <audio_file_path> [appId] [appSecret] [printMode] [asrType] [transMode] [recall]");
+            System.out.println("  register <audio_file_path> <speaker_name> [appId] [appSecret]");
+            System.out.println("  search <audio_file_path> [appId] [appSecret]");
+            System.out.println("  delete-all [appId] [appSecret]");
             System.exit(1);
         }
 
-        String audioFile = args[0];
-        String appId = args.length > 1 ? args[1] : "test1";
-        String appSecret = args.length > 2 ? args[2] : "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
-        String printMode = args.length > 3 ? args[3] : "typewriter";
-        String asrType = args.length > 4 ? args[4] : "word";
-        String transMode = args.length > 5 ? args[5] : "0";
-        boolean recall = args.length > 6 ? Boolean.parseBoolean(args[6]) : true;
+        String mode = args[0];
+        String appId = "test1";
+        String appSecret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
+        String serverUrl = "http://127.0.0.1:3700";
 
-        AsrClient client = new AsrClient(appId, appSecret, printMode, asrType, audioFile, transMode, recall);
-        client.start();
+        switch (mode) {
+            case "asr":
+                String audioFile = args[1];
+                String printMode = args.length > 4 ? args[4] : "typewriter";
+                String asrType = args.length > 5 ? args[5] : "word";
+                String transMode = args.length > 6 ? args[6] : "0";
+                boolean recall = args.length > 7 ? Boolean.parseBoolean(args[7]) : true;
+                
+                if (args.length > 2) appId = args[2];
+                if (args.length > 3) appSecret = args[3];
+
+                AsrClient client = new AsrClient(appId, appSecret, printMode, asrType, audioFile, transMode, recall);
+                client.start();
+                break;
+
+            case "register":
+                if (args.length < 3) {
+                    System.out.println("Error: register mode requires audio_file_path and speaker_name");
+                    System.exit(1);
+                }
+                if (args.length > 3) appId = args[3];
+                if (args.length > 4) appSecret = args[4];
+
+                VoiceIdClient voiceIdClient = new VoiceIdClient(appId, appSecret, serverUrl);
+                voiceIdClient.registerVoice(args[1], args[2], "abcpen", "abcpen");
+                break;
+
+            case "search":
+                if (args.length > 2) appId = args[2];
+                if (args.length > 3) appSecret = args[3];
+
+                voiceIdClient = new VoiceIdClient(appId, appSecret, serverUrl);
+                voiceIdClient.searchVoice(args[1], "abcpen", "abcpen");
+                break;
+
+            case "delete-all":
+                if (args.length > 1) appId = args[1];
+                if (args.length > 2) appSecret = args[2];
+
+                voiceIdClient = new VoiceIdClient(appId, appSecret, serverUrl);
+                voiceIdClient.deleteAllVoices("abcpen", "abcpen");
+                break;
+
+            default:
+                System.out.println("Unknown mode: " + mode);
+                System.exit(1);
+        }
     }
 }
 
