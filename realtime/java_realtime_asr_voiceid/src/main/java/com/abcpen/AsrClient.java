@@ -231,7 +231,7 @@ public class AsrClient {
         String mode = args[0];
         String appId = "test1";
         String appSecret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
-        String serverUrl = "http://127.0.0.1:3700";
+        String serverUrl = "https://audio.abcpen.com";
 
         switch (mode) {
             case "asr":
