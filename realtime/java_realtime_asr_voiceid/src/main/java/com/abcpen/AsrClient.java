@@ -219,7 +219,7 @@ public class AsrClient {
      */
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("Usage: java -jar realtime_asr.jar <mode> <args>");
+            System.out.println("Usage: java -jar realtime_asr_voiceid.jar <mode> <args>");
             System.out.println("Modes:");
             System.out.println("  asr <audio_file_path> [appId] [appSecret] [printMode] [asrType] [transMode] [recall]");
             System.out.println("  register <audio_file_path> <speaker_name> [appId] [appSecret]");
@@ -229,8 +229,9 @@ public class AsrClient {
         }
 
         String mode = args[0];
-        String appId = "test1";
-        String appSecret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A";
+        //请向公司商务申请账号
+        String appId = "xxx";
+        String appSecret = "xxx";
         String serverUrl = "https://audio.abcpen.com";
 
         switch (mode) {

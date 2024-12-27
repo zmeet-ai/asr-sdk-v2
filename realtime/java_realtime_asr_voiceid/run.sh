@@ -40,7 +40,7 @@ run_maven() {
 
 # 检查 jar 文件是否存在
 check_jar() {
-    if [ ! -f target/realtime_asr-1.0-SNAPSHOT.jar ]; then
+    if [ ! -f target/realtime_asr_voiceid-1.0-SNAPSHOT.jar ]; then
         echo -e "${RED}JAR file not found. Please run 'package' first.${NC}"
         exit 1
     fi
@@ -53,7 +53,7 @@ run_program() {
     
     check_jar
     echo -e "${GREEN}Running program in $mode mode${NC}"
-    java -jar target/realtime_asr-1.0-SNAPSHOT.jar "$mode" "$@"
+    java -jar target/realtime_asr_voiceid-1.0-SNAPSHOT.jar "$mode" "$@"
 }
 
 # 主命令处理
