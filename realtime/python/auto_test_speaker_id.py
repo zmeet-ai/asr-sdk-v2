@@ -14,28 +14,23 @@ from loguru import logger
 from time import sleep
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
+from dotenv import load_dotenv
+
+load_dotenv()
 
 root_dir = os.path.dirname(__file__)
 
-
-AUDIO_PART_16K = f"{root_dir}/dataset/16k"
-AUDIO_PART_16K = f"/mnt/e/music/真人/fuzhou_denoise"
-AUDIO_PART_QUERY = f"{root_dir}/dataset/query"
-AUDIO_PART_QUERY = f"/mnt/e/music/真人/test"
-AUDIO_PART_COMPLEX = f"{root_dir}/dataset/mp3"
-AUDIO_ALL = "/mnt/f/dataset/audio/voiceid_test"
-AUDIO_ALL = "/mnt/e/music/真人/test"
-TEST_COUNT = 100
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../dataset/voiceid"))
 
 # for test env
-# URL_SERVER="https://nlp-prod.abcpen.com"
 # URL_SERVER = "http://192.168.2.141:3700"
-URL_SERVER = "https://audio.abcpen.com"
 # for production env
-#URL_SERVER = "https://voiceid.abcpen.com:8443"
+URL_SERVER = "https://voiceid.abcpen.com:8443"
 
-application_key = "test1"
-application_secret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A"
+# 请向公司商务申请账号
+application_key = os.getenv("ZMEET_APP_ID")
+application_secret = os.getenv("ZMEET_APP_SECRET")
 
 def update_logger():
     log_file = os.getenv("LOG_FILE", "/data/logs/voiceid/voiceid.log")
@@ -88,18 +83,18 @@ headers = {
 @dataclass
 class VoiceIDConfig:
     """声纹配置类"""
-    url_server: str = "https://audio.abcpen.com"
+    url_server: str = "https://voiceid.abcpen.com:8443"
     app_key: str = "test1"
     app_secret: str = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A"
-    org_id: str = "abcpen"
-    tag_id: str = "abcpen"
+    org_id: str = "test2"
+    tag_id: str = "test2"
     audio_dirs: Dict[str, str] = None
     
     def __post_init__(self):
         self.audio_dirs = {
-            "register": "/data/music/真人/正式库/下渡所声纹库新",  # 注册音频目录
-            "verify": "/data/music/真人/1212/verify",  # 验证音频目录
-            "complex": "/data/music/真人/complex",  # 添加复杂音频目录
+            "register": "../dataset/voiceid/register",  # 注册音频目录
+            "verify": "../dataset/voiceid/verify",  # 验证音频目录
+            "complex": "../dataset/voiceid/register",  # 添加复杂音频目录
         }
         
 class VoiceIDClient:
@@ -145,6 +140,7 @@ class VoiceIDClient:
         register_dir = self.config.audio_dirs["register"]
         for entry in os.scandir(register_dir):
             if entry.is_file() and entry.name.lower().endswith(('.wav', '.flac', '.m4a')):
+                # 这里使用文件名去掉下划线之前的名字作为speaker name
                 filename = os.path.splitext(entry.name)[0]
                 speaker_id = filename.split("_")[0] if "_" in filename else filename
                 self.register_voice(entry.path, speaker_id, audio_preprocess)
@@ -267,22 +263,12 @@ def main():
     
     try:
         # 执行所有操作
-        client.register_voice(f"{config.audio_dirs['register']}/sample.wav", "测试说话人")
         client.register_directory()
-        client.register_complex_directory()
-        
         client.count_voices()
         client.list_voices()
         
-        client.search_voice(f"{config.audio_dirs['verify']}/sample.wav")
-        for entry in os.scandir(config.audio_dirs["verify"]):
-            if entry.is_file() and entry.name.lower().endswith(('.wav', '.flac', '.m4a')):
-                client.search_voice(entry.path)
-        client.search_complex_directory()
-        
-        client.get_voice_url("测试说话人")
-        client.delete_speaker("测试说话人")
-        client.delete_all_speakers()
+        client.search_voice(f"{config.audio_dirs['verify']}/sample_segment1.wav")
+        #client.delete_all_speakers()
         
     except Exception as err:
         logger.error(f"Error occurred: {repr(err)}")

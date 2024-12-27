@@ -10,6 +10,8 @@ import orjson,json
 import random, base64
 from loguru import logger
 import argparse
+from dotenv import load_dotenv
+load_dotenv()
 
 time_per_chunk = 0.2  # 每次发送的音频数据的时间长度，单位：s
 num_channel = 1  # 声道数
@@ -19,11 +21,11 @@ bytes_per_chunk = int(sample_rate * num_quantify * time_per_chunk * num_channel 
 sleep_time_duration = 0.1 # 每次发送音频数据后等待的时间长度，单位：s
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(os.path.join(os.path.dirname(__file__), "dataset"))
+sys.path.append(os.path.join(os.path.dirname(__file__), "../dataset/asr"))
 
-async def send_audio_data(websocket: WebSocketClientProtocol):
+async def send_audio_data(websocket: WebSocketClientProtocol, audio_file: str):
     try:
-        filename = os.path.join(os.path.dirname(__file__), "dataset/3-1-60s.wav")
+        filename = audio_file
         chunk_size = bytes_per_chunk
         
         with open(filename, "rb") as file:
@@ -91,18 +93,19 @@ def generate_signature(app_id: str, api_key: str) -> str:
     signa = str(signa, 'utf-8')
     return signa, ts
 
-async def connect_to_server(print_mode: str, asr_type: str, recall: bool):
-    app_id = "test1"
-    app_secret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A"
-    # base_url = "wss://{}/asr-realtime/v2/ws".format("audio.abcpen.com:8443")
-    base_url = "ws://{}/asr-realtime/v2/ws".format("192.168.2.141:2001")
+async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
+    # 请向公司商务申请账号
+    app_id = os.getenv("ZMEET_APP_ID")
+    app_secret = os.getenv("ZMEET_APP_SECRET")
+    base_url = "wss://{}/asr-realtime/v2/ws".format("audio.abcpen.com:8443")
+    #base_url = "ws://{}/asr-realtime/v2/ws".format("192.168.2.141:2001")
     signa, ts = generate_signature(app_id, app_secret)
 
-    url_asr_apply = base_url + "?appid=" + app_id + "&ts=" + ts + "&signa=" + quote(signa) + f"&asr_type={asr_type}" + "&trans_mode=0" + "&target_lang=ru" + "&pd=court" + "&recall=" + str(recall)
+    url_asr_apply = base_url + "?appid=" + app_id + "&ts=" + ts + "&signa=" + quote(signa) + f"&asr_type={asr_type}" + "&trans_mode=0" + "&target_lang=ru" + "&pd=court"
     
     try:
         async with websockets.connect(url_asr_apply) as websocket:
-            task_send = asyncio.create_task(send_audio_data(websocket))
+            task_send = asyncio.create_task(send_audio_data(websocket, audio_file))
             task_receive = asyncio.create_task(receive_recognition_result(websocket, print_mode))
 
             done, pending = await asyncio.wait(
@@ -128,14 +131,14 @@ if __name__ == "__main__":
                        choices=['sentence', 'word'],
                        default='word',
                        help='ASR recognition mode: sentence (default) or word')
-    parser.add_argument('--recall',
-                       action='store_true',
-                       default=True,
-                       help='Enable recall mode (default: False)')
+    parser.add_argument('--audio_file',
+                       type=str,
+                       default=os.path.join(os.path.dirname(__file__), "../dataset/asr/3-1-60s.wav"),
+                       help='Path to the audio file (default: ../dataset/asr/3-1-60s.wav)')
     
     args = parser.parse_args()
     try:
-        asyncio.run(connect_to_server(args.mode, args.asr_type, args.recall))
+        asyncio.run(connect_to_server(args.mode, args.asr_type, args.audio_file))
     except KeyboardInterrupt:
         logger.info("Program terminated by user (Ctrl+C)")
     except Exception as e: 
