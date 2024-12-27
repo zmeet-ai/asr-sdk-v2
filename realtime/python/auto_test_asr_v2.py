@@ -41,6 +41,7 @@ async def send_audio_data(websocket: WebSocketClientProtocol, audio_file: str):
                 await asyncio.sleep(0)
         await websocket.send('')
         #await websocket.send('{"end": true}')
+        await asyncio.sleep(120)
     except (websockets.exceptions.ConnectionClosedError, KeyboardInterrupt) as e:
         logger.info(f"Connection closed or interrupted: {e}")
     except Exception as e:
@@ -70,7 +71,7 @@ async def receive_recognition_result(websocket: WebSocketClientProtocol, print_m
                     logger.warning(f"{asr_json}")
                 else:
                     logger.info(f"{asr_json}")
-            await asyncio.sleep(0)  # 释放控制权，允许其他任务执行
+        await asyncio.sleep(120)  # 释放控制权，允许其他任务执行
     except Exception as err:
         print(f"receive_recognition_result error: {repr(err)}")
 
@@ -97,6 +98,7 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
     # 请向公司商务申请账号
     app_id = os.getenv("ZMEET_APP_ID")
     app_secret = os.getenv("ZMEET_APP_SECRET")
+    logger.info(f"app_id: {app_id}, app_secret: {app_secret}")
     base_url = "wss://{}/asr-realtime/v2/ws".format("audio.abcpen.com:8443")
     #base_url = "ws://{}/asr-realtime/v2/ws".format("192.168.2.141:2001")
     signa, ts = generate_signature(app_id, app_secret)

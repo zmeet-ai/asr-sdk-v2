@@ -28,10 +28,6 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "../dataset/voiceid"))
 # for production env
 URL_SERVER = "https://voiceid.abcpen.com:8443"
 
-# 请向公司商务申请账号
-application_key = os.getenv("ZMEET_APP_ID")
-application_secret = os.getenv("ZMEET_APP_SECRET")
-
 def update_logger():
     log_file = os.getenv("LOG_FILE", "/data/logs/voiceid/voiceid.log")
     log_dir = os.path.dirname(log_file)
@@ -52,43 +48,17 @@ def update_logger():
         format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message} | {function}->{line}",
         level=log_level,
     )
-# generate new signature for the request (client side)
-def generate_signature(app_id: str, api_key: str) -> str:
-    """
-    @param app_id: 应用程序ID
-    @param api_key: 应用程序秘钥
-    @return: 签名, 时间戳
-    """
-    ts: str = str(int(time.time()))
-    tt = (app_id + ts).encode("utf-8")
-    md5 = hashlib.md5()
-    md5.update(tt)
-    baseString = md5.hexdigest()
-    baseString = bytes(baseString, encoding="utf-8")
-
-    apiKey = api_key.encode("utf-8")
-    signa = hmac.new(apiKey, baseString, hashlib.sha1).digest()
-    signa = base64.b64encode(signa)
-    signa = str(signa, "utf-8")
-    return signa, ts
-
-
-expected_signature, timestamp = generate_signature(application_key, application_secret)
-headers = {
-    "X-App-Key": application_key,
-    "X-App-Signature": expected_signature,
-    "X-Timestamp": timestamp,
-}
 
 @dataclass
 class VoiceIDConfig:
     """声纹配置类"""
     url_server: str = "https://voiceid.abcpen.com:8443"
-    app_key: str = "test1"
-    app_secret: str = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A"
-    org_id: str = "test2"
-    tag_id: str = "test2"
+    app_key: str = os.getenv("ZMEET_APP_ID")
+    app_secret: str = os.getenv("ZMEET_APP_SECRET")
+    org_id: str = app_key
+    tag_id: str = app_key
     audio_dirs: Dict[str, str] = None
+    logger.info(f"app_key: {app_key}, app_secret: {app_secret}")
     
     def __post_init__(self):
         self.audio_dirs = {
@@ -103,9 +73,29 @@ class VoiceIDClient:
         self.config = config
         self.headers = self._generate_headers()
         
+    @staticmethod
+    def generate_signature(app_id: str, api_key: str) -> str:
+        """
+        @param app_id: 应用程序ID
+        @param api_key: 应用程序秘钥
+        @return: 签名, 时间戳
+        """
+        ts: str = str(int(time.time()))
+        tt = (app_id + ts).encode("utf-8")
+        md5 = hashlib.md5()
+        md5.update(tt)
+        baseString = md5.hexdigest()
+        baseString = bytes(baseString, encoding="utf-8")
+
+        apiKey = api_key.encode("utf-8")
+        signa = hmac.new(apiKey, baseString, hashlib.sha1).digest()
+        signa = base64.b64encode(signa)
+        signa = str(signa, "utf-8")
+        return signa, ts
+
     def _generate_headers(self) -> Dict[str, str]:
         """生成请求头"""
-        signature, timestamp = generate_signature(self.config.app_key, self.config.app_secret)
+        signature, timestamp = self.generate_signature(self.config.app_key, self.config.app_secret)
         return {
             "X-App-Key": self.config.app_key,
             "X-App-Signature": signature,
@@ -263,13 +253,13 @@ def main():
     
     try:
         # 执行所有操作
-        client.register_directory()
-        client.count_voices()
-        client.list_voices()
+        #client.register_directory()
+        #client.count_voices()
+        #client.list_voices()
         
-        client.search_voice(f"{config.audio_dirs['verify']}/sample_segment1.wav")
+        client.search_voice(f"{config.audio_dirs['verify']}/lianxin_reg1.wav")
         #client.delete_all_speakers()
-        
+    
     except Exception as err:
         logger.error(f"Error occurred: {repr(err)}")
 
