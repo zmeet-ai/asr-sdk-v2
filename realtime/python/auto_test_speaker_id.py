@@ -250,6 +250,13 @@ class VoiceIDClient:
                 if count >= max_count:
                     break
 
+    def search_directory(self) -> None:
+        """验证目录下的所有音频文件"""
+        verify_dir = self.config.audio_dirs["verify"]
+        for entry in os.scandir(verify_dir):
+            if entry.is_file() and entry.name.lower().endswith(('.wav', '.flac', '.m4a')):
+                self.search_voice(entry.path)
+                
 def main():
     """主函数"""
     config = VoiceIDConfig()
@@ -257,11 +264,13 @@ def main():
     
     try:
         # 执行所有操作
-        #client.register_directory()
-        #client.count_voices()
-        #client.list_voices()
+        client.register_directory()
+        client.count_voices()
+        client.list_voices()
         
-        client.search_voice(f"{config.audio_dirs['verify']}/1006_20241223_081645_full_audio.wav")
+        #client.search_voice(f"{config.audio_dirs['verify']}/1006_20241223_081645_full_audio.wav")
+        # 验证目录下的所有音频文件
+        client.search_directory()
         #client.delete_all_speakers()
     
     except Exception as err:
