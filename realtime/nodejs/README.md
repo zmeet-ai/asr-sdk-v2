@@ -5,6 +5,8 @@
 * 运行脚本：node auto_test_asr.js
 * 具体参数帮助指引：node auto_test_asr.js --help    
 
+## 项目启动前先配置 .env
+* 在项目根目录下更新 .env 文件
 
 ### 可选参数
 - `--mode <type>`: 输出模式，可选 'typewriter' 或 'json'，默认为 'typewriter'

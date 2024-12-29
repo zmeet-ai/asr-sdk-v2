@@ -3,6 +3,9 @@
 * 安装依赖库：pip install -r requirements.txt
 * 可使用conda环境，安装命令：conda create -n asr python=3.10
 
+## 项目启动前先配置 .env
+* 在项目根目录下更新 .env 文件
+
 ## 实时语音识别
 * 运行脚本：python auto_test_asr_v2.py
 * 具体参数帮助指引：python auto_test_asr_v2.py --help       
