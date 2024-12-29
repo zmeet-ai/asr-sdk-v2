@@ -101,18 +101,25 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 结果格式为json，字段说明如下：
 
-| 参数   | 类型   | 说明                                                         |
-| :----- | :----- | :----------------------------------------------------------- |
-| code   | string | 结果码(具体见 <a href="#错误码">错误码</a> ， 出现错误的时候返回) |
-| msg    | string | 结果数据（出现错误的时候返回）                               |
-| seg_id | string | 从0开始的语句id，返回的每条语句逐步递增seg_id; 注意只有一句话完整稳定识别后才会递增seg_id, is_final为True， 表示一句话完全稳定识别完毕。 |
+| 参数      | 类型   | 说明                                                         |
+| :-------- | :----- | :----------------------------------------------------------- |
+| code      | string | 结果码(具体见 <a href="#错误码">错误码</a> ， 出现错误的时候返回) |
+| msg       | string | 结果数据（出现错误的时候返回）                               |
+| seg_id    | string | 从0开始的语句id，返回的每条语句逐步递增seg_id; 注意只有一句话完整稳定识别后才会递增seg_id, is_final为True， 表示一句话完全稳定识别完毕。 |
+| type      | string | asr: 表示是实时语音识别返回的文本；  voiceprint：表示是实时声纹识别返回的说话人 |
+| is_final  | bool   | True： 表示这句话返回的结果已经稳定，不再修改；False：表示这段话会根据上下文继续矫正，可能继续修改 |
+| task_id   | uuid   | 每次实时识别，赋予一个新的uuid，是每次识别会话的唯一id。     |
+| asr       | string | 当type是asr时，返回的实时语音识别的文本结果。                |
+| speaker   | string | 当type是voiceprint的时候，返回的实时声纹识别的说话人身份。   |
+| translate | string | 当开启同声传译后，返回的目标翻译语言（**文档待完善**）       |
+| rt        | list   | 返回的逐字时间戳和对应的文字或词组（**文档待完善**)          |
 
-其中seg_id字段主要用于DEBUG追查问题，如果出现问题，可以提供sid帮助确认问题。
+其中task_id字段主要用于DEBUG追查问题，如果出现问题，可以提供task_id帮助确认问题。
 
 > 成功
 
 ```json
-{'rt': [], 'is_final': False, 'seg_id': 0, 'asr': '哈喽', 'translate': ''}
+{'type': 'asr', 'rt': [], 'is_final': False, 'seg_id': 28, 'asr': '模型的决策过程比如提升对复杂语境的', 'task_id': '99605de3-935b-45c6-8f99-45f0bc7b697b', 'translate': ''}
 ```
 
 > 失败
@@ -120,7 +127,8 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 ```json
 	{
 		"code":"10106",
-		"msg":"invalid parameter"
+		"msg":"invalid parameter",
+        'task_id': '1583d7e1-3dea-4e2b-96b2-f562f38dc652'
 	}
 ```
 
