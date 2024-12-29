@@ -257,7 +257,7 @@ def main():
         #client.count_voices()
         #client.list_voices()
         
-        client.search_voice(f"{config.audio_dirs['verify']}/lianxin_reg1.wav")
+        client.search_voice(f"{config.audio_dirs['verify']}/1006_20241223_081645_full_audio.wav")
         #client.delete_all_speakers()
     
     except Exception as err:

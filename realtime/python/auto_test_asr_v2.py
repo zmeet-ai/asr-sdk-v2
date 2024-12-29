@@ -100,7 +100,6 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
     app_secret = os.getenv("ZMEET_APP_SECRET")
     logger.info(f"app_id: {app_id}, app_secret: {app_secret}")
     base_url = "wss://{}/asr-realtime/v2/ws".format("audio.abcpen.com:8443")
-    #base_url = "ws://{}/asr-realtime/v2/ws".format("192.168.2.141:2001")
     signa, ts = generate_signature(app_id, app_secret)
 
     url_asr_apply = base_url + "?appid=" + app_id + "&ts=" + ts + "&signa=" + quote(signa) + f"&asr_type={asr_type}" + "&trans_mode=0" + "&target_lang=ru" + "&pd=court"
