@@ -95,17 +95,23 @@ def generate_signature(app_id: str, api_key: str) -> str:
     return signa, ts
 
 async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
-    # 请向公司商务申请账号
     app_id = os.getenv("ZMEET_APP_ID")
     app_secret = os.getenv("ZMEET_APP_SECRET")
-    logger.info(f"app_id: {app_id}, app_secret: {app_secret}")
-    base_url = "wss://{}/asr-realtime/v2/ws".format("audio.abcpen.com:8443")
+    
+    if not app_id or not app_secret:
+        raise ValueError("缺少必需的环境变量：ZMEET_APP_ID 或 ZMEET_APP_SECRET 未设置")
+    
+    base_url = "wss://audio.abcpen.com:8443/asr-realtime/v2/ws"
     signa, ts = generate_signature(app_id, app_secret)
-
-    url_asr_apply = base_url + "?appid=" + app_id + "&ts=" + ts + "&signa=" + quote(signa) + f"&asr_type={asr_type}" + "&trans_mode=0" + "&target_lang=ru" + "&pd=court"
+    
+    # 更新 URL，添加声纹识别参数
+    url = (f"{base_url}?appid={app_id}&ts={ts}&signa={quote(signa)}"
+           f"&asr_type={asr_type}&voiceprint={args.voiceprint}"
+           f"&voiceprint_org_id={args.voiceprint_org_id}"
+           f"&voiceprint_tag_id={args.voiceprint_tag_id}")
     
     try:
-        async with websockets.connect(url_asr_apply) as websocket:
+        async with websockets.connect(url) as websocket:
             task_send = asyncio.create_task(send_audio_data(websocket, audio_file))
             task_receive = asyncio.create_task(receive_recognition_result(websocket, print_mode))
 
@@ -136,11 +142,26 @@ if __name__ == "__main__":
                        type=str,
                        default=os.path.join(os.path.dirname(__file__), "../dataset/asr/3-1-60s.wav"),
                        help='Path to the audio file (default: ../dataset/asr/3-1-60s.wav)')
-    
+    parser.add_argument('--voiceprint',
+                       type=str,
+                       default='1',
+                       help='Enable voiceprint recognition (default: 1)')
+    parser.add_argument('--voiceprint_org_id',
+                       type=str,
+                       default=None,  # 将使用 app_id 作为默认值
+                       help='Organization ID for voiceprint (default: same as app_id)')
+    parser.add_argument('--voiceprint_tag_id',
+                       type=str,
+                       default=None,  # 将使用 app_id 作为默认值
+                       help='Tag ID for voiceprint (default: same as app_id)')
+
     args = parser.parse_args()
-    try:
-        asyncio.run(connect_to_server(args.mode, args.asr_type, args.audio_file))
-    except KeyboardInterrupt:
-        logger.info("Program terminated by user (Ctrl+C)")
-    except Exception as e: 
-        logger.error(f"connect_to_server error: {repr(e)}")
+    
+    # 如果未指定 org_id 和 tag_id，使用 app_id
+    app_id = os.getenv("ZMEET_APP_ID")
+    if args.voiceprint_org_id is None:
+        args.voiceprint_org_id = app_id
+    if args.voiceprint_tag_id is None:
+        args.voiceprint_tag_id = app_id
+
+    asyncio.run(connect_to_server(args.mode, args.asr_type, args.audio_file))

@@ -55,18 +55,22 @@ class VoiceIDConfig:
     url_server: str = "https://voiceid.abcpen.com:8443"
     app_key: str = os.getenv("ZMEET_APP_ID")
     app_secret: str = os.getenv("ZMEET_APP_SECRET")
-    org_id: str = app_key
-    tag_id: str = app_key
-    audio_dirs: Dict[str, str] = None
-    logger.info(f"app_key: {app_key}, app_secret: {app_secret}")
     
     def __post_init__(self):
+        # 检查必需的环境变量
+        if not self.app_key or not self.app_secret:
+            raise ValueError("缺少必需的环境变量：ZMEET_APP_ID 或 ZMEET_APP_SECRET 未设置")
+            
+        logger.info(f"app_key: {self.app_key}, app_secret: {self.app_secret}")
+        
+        self.org_id: str = self.app_key
+        self.tag_id: str = self.app_key
         self.audio_dirs = {
             "register": "../dataset/voiceid/register",  # 注册音频目录
             "verify": "../dataset/voiceid/verify",  # 验证音频目录
             "complex": "../dataset/voiceid/register",  # 添加复杂音频目录
         }
-        
+
 class VoiceIDClient:
     """声纹识别客户端"""
     def __init__(self, config: VoiceIDConfig):
