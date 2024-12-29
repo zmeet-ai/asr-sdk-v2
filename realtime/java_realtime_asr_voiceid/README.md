@@ -20,6 +20,10 @@ Examples:
   ./run.sh run delete-all
   ./run.sh all asr ../dataset/asr/3-1-60s.wav
 ```
+
+## 项目启动前先配置 .env
+* 在项目根目录下更新 .env 文件
+
 ## 直接运行jar包
 ### 运行ASR识别
 ```bash

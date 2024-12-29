@@ -45,7 +45,6 @@ public class AsrClient {
     private final String asrType;
     private final String audioFile;
     private final String transMode;
-    private final boolean recall;
     private WebSocketClient wsClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final String voiceprint;
@@ -62,16 +61,16 @@ public class AsrClient {
      * @param audioFile Path to the audio file
      */
     public AsrClient(String appId, String appSecret, String printMode, String asrType, String audioFile) {
-        this(appId, appSecret, printMode, asrType, audioFile, "0", true, "1", appId, appId);
+        this(appId, appSecret, printMode, asrType, audioFile, "0", "1", appId, appId);
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
-                    String audioFile, String transMode, boolean recall) {
-        this(appId, appSecret, printMode, asrType, audioFile, transMode, recall, "1", appId, appId);
+                    String audioFile, String transMode) {
+        this(appId, appSecret, printMode, asrType, audioFile, transMode, "1", appId, appId);
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
-                    String audioFile, String transMode, boolean recall,
+                    String audioFile, String transMode,
                     String voiceprint, String voiceprintOrgId, String voiceprintTagId) {
         this.appId = appId;
         this.appSecret = appSecret;
@@ -79,7 +78,6 @@ public class AsrClient {
         this.asrType = asrType;
         this.audioFile = audioFile;
         this.transMode = transMode;
-        this.recall = recall;
         this.voiceprint = voiceprint;
         this.voiceprintOrgId = voiceprintOrgId;
         this.voiceprintTagId = voiceprintTagId;
@@ -138,9 +136,9 @@ public class AsrClient {
 
             String wsUrl = String.format(
                     "wss://audio.abcpen.com:8443/asr-realtime/v2/ws?appid=%s&ts=%s&signa=%s" +
-                    "&asr_type=%s&trans_mode=%s&target_lang=%s&pd=%s&recall=%s" +
+                    "&asr_type=%s&trans_mode=%s&target_lang=%s&pd=%s" +
                     "&voiceprint=%s&voiceprint_org_id=%s&voiceprint_tag_id=%s",
-                    appId, ts, signa, asrType, transMode, TARGET_LANG, PD, recall,
+                    appId, ts, signa, asrType, transMode, TARGET_LANG, PD,
                     voiceprint, voiceprintOrgId, voiceprintTagId);
 
             wsClient = new WebSocketClient(new URI(wsUrl)) {
@@ -269,17 +267,16 @@ public class AsrClient {
                 String printMode = args.length > 4 ? args[4] : "typewriter";
                 String asrType = args.length > 5 ? args[5] : "word";
                 String transMode = args.length > 6 ? args[6] : "0";
-                boolean recall = args.length > 7 ? Boolean.parseBoolean(args[7]) : true;
-                String voiceprint = args.length > 8 ? args[8] : "1";
+                String voiceprint = args.length > 7 ? args[7] : "1";
                 
-                String voiceprintOrgId = args.length > 9 ? args[9] : defaultAppId;
-                String voiceprintTagId = args.length > 10 ? args[10] : defaultAppId;
+                String voiceprintOrgId = args.length > 8 ? args[8] : defaultAppId;
+                String voiceprintTagId = args.length > 9 ? args[9] : defaultAppId;
                 
                 if (args.length > 2) defaultAppId = args[2];
                 if (args.length > 3) defaultAppSecret = args[3];
 
                 AsrClient client = new AsrClient(defaultAppId, defaultAppSecret, printMode, 
-                    asrType, audioFile, transMode, recall, 
+                    asrType, audioFile, transMode,
                     voiceprint, voiceprintOrgId, voiceprintTagId);
                 client.start();
                 break;
