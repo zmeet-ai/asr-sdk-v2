@@ -21,6 +21,7 @@ import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import io.github.cdimascio.dotenv.Dotenv;
 
 /**
  * AsrClient handles real-time audio streaming and speech recognition.
@@ -47,6 +48,9 @@ public class AsrClient {
     private final boolean recall;
     private WebSocketClient wsClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final String voiceprint;
+    private final String voiceprintOrgId;
+    private final String voiceprintTagId;
 
     /**
      * Constructs an AsrClient with the specified parameters.
@@ -58,11 +62,17 @@ public class AsrClient {
      * @param audioFile Path to the audio file
      */
     public AsrClient(String appId, String appSecret, String printMode, String asrType, String audioFile) {
-        this(appId, appSecret, printMode, asrType, audioFile, "0", true);
+        this(appId, appSecret, printMode, asrType, audioFile, "0", true, "1", appId, appId);
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
                     String audioFile, String transMode, boolean recall) {
+        this(appId, appSecret, printMode, asrType, audioFile, transMode, recall, "1", appId, appId);
+    }
+
+    public AsrClient(String appId, String appSecret, String printMode, String asrType, 
+                    String audioFile, String transMode, boolean recall,
+                    String voiceprint, String voiceprintOrgId, String voiceprintTagId) {
         this.appId = appId;
         this.appSecret = appSecret;
         this.printMode = printMode;
@@ -70,6 +80,9 @@ public class AsrClient {
         this.audioFile = audioFile;
         this.transMode = transMode;
         this.recall = recall;
+        this.voiceprint = voiceprint;
+        this.voiceprintOrgId = voiceprintOrgId;
+        this.voiceprintTagId = voiceprintTagId;
     }
 
     /**
@@ -125,8 +138,10 @@ public class AsrClient {
 
             String wsUrl = String.format(
                     "wss://audio.abcpen.com:8443/asr-realtime/v2/ws?appid=%s&ts=%s&signa=%s" +
-                    "&asr_type=%s&trans_mode=%s&target_lang=%s&pd=%s&recall=%s",
-                    appId, ts, signa, asrType, transMode, TARGET_LANG, PD, recall);
+                    "&asr_type=%s&trans_mode=%s&target_lang=%s&pd=%s&recall=%s" +
+                    "&voiceprint=%s&voiceprint_org_id=%s&voiceprint_tag_id=%s",
+                    appId, ts, signa, asrType, transMode, TARGET_LANG, PD, recall,
+                    voiceprint, voiceprintOrgId, voiceprintTagId);
 
             wsClient = new WebSocketClient(new URI(wsUrl)) {
                 @Override
@@ -218,6 +233,23 @@ public class AsrClient {
      * @param args Command line arguments
      */
     public static void main(String[] args) {
+        // 加载 .env 文件
+        Dotenv dotenv = null;
+        try {
+            dotenv = Dotenv.load();
+        } catch (Exception e) {
+            LOGGER.error("Failed to load .env file: {}", e.getMessage());
+        }
+
+        // 从环境变量获取 appId 和 appSecret
+        String defaultAppId = dotenv != null ? dotenv.get("ZMEET_APP_ID") : System.getenv("ZMEET_APP_ID");
+        String defaultAppSecret = dotenv != null ? dotenv.get("ZMEET_APP_SECRET") : System.getenv("ZMEET_APP_SECRET");
+
+        if (defaultAppId == null || defaultAppSecret == null) {
+            LOGGER.error("Missing required environment variables: ZMEET_APP_ID or ZMEET_APP_SECRET");
+            System.exit(1);
+        }
+
         if (args.length < 2) {
             System.out.println("Usage: java -jar realtime_asr_voiceid.jar <mode> <args>");
             System.out.println("Modes:");
@@ -229,9 +261,6 @@ public class AsrClient {
         }
 
         String mode = args[0];
-        //请向公司商务申请账号
-        String appId = "xxx";
-        String appSecret = "xxx";
         String serverUrl = "https://audio.abcpen.com";
 
         switch (mode) {
@@ -241,11 +270,17 @@ public class AsrClient {
                 String asrType = args.length > 5 ? args[5] : "word";
                 String transMode = args.length > 6 ? args[6] : "0";
                 boolean recall = args.length > 7 ? Boolean.parseBoolean(args[7]) : true;
+                String voiceprint = args.length > 8 ? args[8] : "1";
                 
-                if (args.length > 2) appId = args[2];
-                if (args.length > 3) appSecret = args[3];
+                String voiceprintOrgId = args.length > 9 ? args[9] : defaultAppId;
+                String voiceprintTagId = args.length > 10 ? args[10] : defaultAppId;
+                
+                if (args.length > 2) defaultAppId = args[2];
+                if (args.length > 3) defaultAppSecret = args[3];
 
-                AsrClient client = new AsrClient(appId, appSecret, printMode, asrType, audioFile, transMode, recall);
+                AsrClient client = new AsrClient(defaultAppId, defaultAppSecret, printMode, 
+                    asrType, audioFile, transMode, recall, 
+                    voiceprint, voiceprintOrgId, voiceprintTagId);
                 client.start();
                 break;
 
@@ -254,27 +289,27 @@ public class AsrClient {
                     System.out.println("Error: register mode requires audio_file_path and speaker_name");
                     System.exit(1);
                 }
-                if (args.length > 3) appId = args[3];
-                if (args.length > 4) appSecret = args[4];
+                if (args.length > 3) defaultAppId = args[3];
+                if (args.length > 4) defaultAppSecret = args[4];
 
-                VoiceIdClient voiceIdClient = new VoiceIdClient(appId, appSecret, serverUrl);
-                voiceIdClient.registerVoice(args[1], args[2], "abcpen", "abcpen");
+                VoiceIdClient registerClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                registerClient.registerVoice(args[1], args[2], defaultAppId, defaultAppId);
                 break;
 
             case "search":
-                if (args.length > 2) appId = args[2];
-                if (args.length > 3) appSecret = args[3];
-
-                voiceIdClient = new VoiceIdClient(appId, appSecret, serverUrl);
-                voiceIdClient.searchVoice(args[1], "abcpen", "abcpen");
+                if (args.length > 2) defaultAppId = args[2];
+                if (args.length > 3) defaultAppSecret = args[3];
+                
+                VoiceIdClient searchClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                searchClient.searchVoice(args[1], defaultAppId, defaultAppId);
                 break;
 
             case "delete-all":
-                if (args.length > 1) appId = args[1];
-                if (args.length > 2) appSecret = args[2];
+                if (args.length > 2) defaultAppId = args[2];
+                if (args.length > 3) defaultAppSecret = args[3];
 
-                voiceIdClient = new VoiceIdClient(appId, appSecret, serverUrl);
-                voiceIdClient.deleteAllVoices("abcpen", "abcpen");
+                VoiceIdClient deleteClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                deleteClient.deleteAllVoices(defaultAppId, defaultAppId);
                 break;
 
             default:
