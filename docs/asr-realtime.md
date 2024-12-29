@@ -5,7 +5,12 @@
 ## 接口说明
 
 实时语音转写（Real-time ASR）基于深度全序列卷积神经网络框架，通过 WebSocket 协议，建立应用与语言转写核心引擎的长连接，开发者可实现将连续的音频流内容，实时识别返回对应的文字流内容。
-支持的音频格式： 采样率为16K，采样深度为16bit的pcm_s16le单声道音频
+支持的音频格式： 采样率为16K，采样深度为16bit的**pcm_s16le**单声道音频
+
+## 注意事项
+
+* 如果开启实时声纹识别，因为声纹识别根据计算量不同可能比实时asr识别有滞后，所以客户端不要主动关闭websocket连接
+* 服务端做完毕所有实时asr识别和实时声纹识别后，会主动断掉客户端lian'jie
 
 
 ## 接口Demo
@@ -19,11 +24,11 @@
 | 内容     | 说明                                                         |
 | :------- | ------------------------------------------------------------ |
 | 请求协议 | wss                                                          |
-| 请求地址 | wss://audio.abcpen.com:8443/asr-realtime/v2/ws?{请求参数} *注：服务器IP不固定，为保证您的接口稳定，请勿通过指定IP的方式调用接口，使用域名方式调用* |
+| 请求地址 | wss://audio.abcpen.com:8443/asr-realtime/v2/ws?{请求参数} ** |
 | 接口鉴权 | 签名机制，详见 [signa生成](#signa生成)                       |
 | 响应格式 | 统一采用JSON格式                                             |
 | 开发语言 | 任意，只要可以向启真云服务发起WebSocket请求的均可            |
-| 音频属性 | 采样率16k、位长16bit、单声道                                 |
+| 音频属性 | 采样率16k、位长16bit、单声道(pcm_s16le)                      |
 | 音频格式 | pcm                                                          |
 | 数据发送 | 建议音频流每200ms发送6400字节                                |
 
@@ -50,17 +55,17 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 参数说明
 
-| 参数             | 类型    | 必须 | 说明                                                         | 示例                                                         |
-| :--------------- | :------ | :--- | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| appid            | string  | 是   | 启真开放平台应用ID                                           | 595f23df                                                     |
-| ts               | string  | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
-| signa            | string  | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
-| punc             | string  | 否   | 标点过滤控制，默认返回标点，punc=0会过滤结果中的标点         | 1                                                            |
-| scene            | string  | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
-| asr_type         | string  | 否   | 识别结果输出类型，sentence，不输出逐字和逐句结果 ；word，输出逐字和逐句结果，默认为word。 | "sentence"                                                   |
-| noise_threshold  | float   | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果** | 0.5                                                          |
-| max_speak_time   | Integer |      | 强制断句功能，取值范围 5000-100000(单位:毫秒），默认值0(不开启)。 在连续说话不间断情况下，该参数将实现强制断句（此时结果变成稳态，）。如：游戏解说场景，解说员持续不间断解说，无法断句的情况下，将此参数设置为10000。 | 0                                                            |
-| vad_silence_time |         |      | 语音断句检测阈值，静音时长超过该阈值会被认为断句（多用在智能客服场景），取值范围：240-2000（默认1000），单位 ms，此参数建议不要随意调整，可能会影响识别效果。 | 250                                                          |
+| 参数              | 类型   | 必须 | 说明                                                         | 示例                                                         |
+| :---------------- | :----- | :--- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| appid             | string | 是   | 启真开放平台应用ID                                           | 595f23df                                                     |
+| ts                | string | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
+| signa             | string | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
+| voiceprint        | string | 否   | 是否启用实时声纹识别（对返回的每段话做说话人实时识别）； 为1表示启用，为0表示不启用。 默认开启。 | 1                                                            |
+| voiceprint_org_id | string | 否   | 声纹识别的组织id，默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。 | 默认为申请app key时候给的application id                      |
+| voiceprint_tag_id | string |      | 声纹识别的tag id， 默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。 | 默认为申请app key时候给的application id                      |
+| scene             | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
+| asr_type          | string | 否   | 识别结果输出类型，sentence，输出逐句结果；word，输出逐字和逐句结果，默认为word。 | "word"                                                       |
+| noise_threshold   | float  | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果** | 0.5                                                          |
 
 （2）、实时变更同声传译参数, 可在实时识别的时候传输下面的json字符串，以实时变更输出结果，如是否启动同声传译，启动同声传译时候的目标语言；是否对识别结果打标点符号；识别场景切换等。
 
@@ -88,23 +93,21 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
   * 可选国家编码列表有：af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fo, fr, gl, gu, ha, haw, he, hi, hr, ht, hu, hy, id, is, it, ja, jw, ka, kk, km, kn, ko, la, lb, ln, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, nn, no, oc, pa, pl, ps, pt, ro, ru, sa, sd, si, sk, sl, sn, so, sq, sr, su, sv, sw, ta, te, tg, th, tk, tl, tr, tt, uk, ur, uz, vi, yi, yo, zh
 * enabled： 是否打开同声传译，1表示打开，0表示关闭同声传译
 
-### signa生成
+### signa生成 
 
-
+* 参考对应的sdk代码。
 
 ### 返回值
 
 结果格式为json，字段说明如下：
 
-| 参数   | 类型   | 说明                                         |
-| :----- | :----- | :------------------------------------------- |
-| action | string | 结果标识，result:结果，error:异常            |
-| code   | string | 结果码(具体见 <a href="#错误码">错误码</a> ) |
-| data   | string | 结果数据                                     |
-| desc   | string | 描述                                         |
-| sid    | string | 会话ID                                       |
+| 参数   | 类型   | 说明                                                         |
+| :----- | :----- | :----------------------------------------------------------- |
+| code   | string | 结果码(具体见 <a href="#错误码">错误码</a> ， 出现错误的时候返回) |
+| msg    | string | 结果数据（出现错误的时候返回）                               |
+| seg_id | string | 从0开始的语句id，返回的每条语句逐步递增seg_id; 注意只有一句话完整稳定识别后才会递增seg_id, is_final为True， 表示一句话完全稳定识别完毕。 |
 
-其中sid字段主要用于DEBUG追查问题，如果出现问题，可以提供sid帮助确认问题。
+其中seg_id字段主要用于DEBUG追查问题，如果出现问题，可以提供sid帮助确认问题。
 
 > 成功
 
@@ -131,14 +134,14 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 注意：
 
-1.建议音频流每200ms发送6400字节，发送过快可能导致引擎出错； 2.音频发送间隔超时时间为15秒，超时服务端报错并主动断开连接。
+1.建议音频流每200ms发送6400字节，发送过快可能导致引擎出错； 2.音频发送间隔超时时间为5秒(闲置时间过长)，超时服务端报错并主动断开连接。
 
 ### 上传结束标志
 
 音频数据上传完成后，客户端需发送一个特殊的binary message到服务端作为结束标识，内容是：
 
 ```json
- 	{""}
+ 	{""} 或者 {"end": true}
 ```
 
 ###  接收转写结果
