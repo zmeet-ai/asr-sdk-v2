@@ -55,18 +55,19 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 参数说明
 
-| 参数              | 类型   | 必须 | 说明                                                         | 示例                                                         |
-| :---------------- | :----- | :--- | :----------------------------------------------------------- | :----------------------------------------------------------- |
-| appid             | string | 是   | 启真开放平台应用ID                                           | 595f23df                                                     |
-| ts                | string | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
-| signa             | string | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
-| voiceprint        | string | 否   | 是否启用实时声纹识别（对返回的每段话做说话人实时识别）； 为1表示启用，为0表示不启用。 默认开启。 | 1                                                            |
-| voiceprint_org_id | string | 否   | 声纹识别的组织id，默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。**注册声纹时候传入的相应参数必须和这里的相同**。 | 默认为申请app key时候给的application id                      |
-| voiceprint_tag_id | string |      | 声纹识别的tag id， 默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。 **注册声纹时候传入的相应参数必须和这里的相同**。 | 默认为申请app key时候给的application id                      |
-| scene             | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
-| asr_type          | string | 否   | 识别结果输出类型，sentence，输出逐句结果；word，输出逐字和逐句结果，默认为word。 | "word"                                                       |
-| word_time         | bool   | 否   | 开启后，在result字段，包含每个字词的时间戳                   | 0                                                            |
-| noise_threshold   | float  | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果** | 0.5                                                          |
+| 参数                 | 类型   | 必须 | 说明                                                         | 示例                                                         |
+| :------------------- | :----- | :--- | :----------------------------------------------------------- | :----------------------------------------------------------- |
+| appid                | string | 是   | 启真开放平台应用ID                                           | 595f23df                                                     |
+| ts                   | string | 是   | 当前时间戳，从1970年1月1日0点0分0秒开始到现在的秒数          | 1512041814                                                   |
+| signa                | string | 是   | 加密数字签名（基于HMACSHA1算法）                             | IrrzsJeOFk1NGfJHW6SkHUoN9CU=                                 |
+| voiceprint           | string | 否   | 是否启用实时声纹识别（对返回的每段话做说话人实时识别）； 为1表示启用，为0表示不启用。 默认开启。 | 1                                                            |
+| voiceprint_org_id    | string | 否   | 声纹识别的组织id，默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。**注册声纹时候传入的相应参数必须和这里的相同**。 | 默认为申请app key时候给的application id                      |
+| voiceprint_tag_id    | string |      | 声纹识别的tag id， 默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。 **注册声纹时候传入的相应参数必须和这里的相同**。 | 默认为申请app key时候给的application id                      |
+| scene                | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
+| asr_type             | string | 否   | 识别结果输出类型，sentence，输出逐句结果；word，输出逐字和逐句结果，默认为word。 | "word"                                                       |
+| word_time            | bool   | 否   | 开启后，在result字段，包含每个字词的时间戳                   | 0                                                            |
+| noise_threshold      | float  | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果**（**文档待完善**） |                                                              |
+| audio_power_far_near | float  | 否   | 多人说话的时候，区分远场语音和近场语音（**文档待完善**）     |                                                              |
 
 （2）、实时变更同声传译参数, 可在实时识别的时候传输下面的json字符串，以实时变更输出结果，如是否启动同声传译，启动同声传译时候的目标语言；是否对识别结果打标点符号；识别场景切换等。
 
