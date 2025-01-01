@@ -108,6 +108,7 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
     url = (f"{base_url}?appid={app_id}&ts={ts}&signa={quote(signa)}"
            f"&asr_type={asr_type}&voiceprint={args.voiceprint}"
            f"&voiceprint_org_id={args.voiceprint_org_id}"
+           f"&word_time=0" # 是否逐字输出
            f"&voiceprint_tag_id={args.voiceprint_tag_id}")
     
     try:

@@ -52,7 +52,11 @@ def update_logger():
 @dataclass
 class VoiceIDConfig:
     """声纹配置类"""
+    # for online env
     url_server: str = "https://voiceid.abcpen.com:8443"
+    # for test env
+    #url_server: str = "http://127.0.0.1:3700"
+    
     app_key: str = os.getenv("ZMEET_APP_ID")
     app_secret: str = os.getenv("ZMEET_APP_SECRET")
     
@@ -264,7 +268,7 @@ def main():
     
     try:
         # 执行所有操作
-        client.register_directory()
+        #client.register_directory()
         client.count_voices()
         client.list_voices()
         
