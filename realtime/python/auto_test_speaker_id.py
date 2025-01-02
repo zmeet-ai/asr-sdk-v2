@@ -15,6 +15,7 @@ from time import sleep
 from typing import Dict, Any, Optional
 from dataclasses import dataclass
 from dotenv import load_dotenv
+import argparse
 
 load_dotenv()
 
@@ -263,7 +264,30 @@ class VoiceIDClient:
                 
 def main():
     """主函数"""
+    parser = argparse.ArgumentParser(description='Voice ID Client')
+    parser.add_argument('--voiceprint_org_id',
+                       type=str,
+                       default=None,  # 将使用 app_id 作为默认值
+                       help='Organization ID for voiceprint (default: same as app_id)')
+    parser.add_argument('--voiceprint_tag_id',
+                       type=str,
+                       default=None,  # 将使用 app_id 作为默认值
+                       help='Tag ID for voiceprint (default: same as app_id)')
+    
+    args = parser.parse_args()
+    
+    # 如果未指定 org_id 和 tag_id，使用 app_id
+    app_id = os.getenv("ZMEET_APP_ID")
+    if args.voiceprint_org_id is None:
+        args.voiceprint_org_id = app_id
+    if args.voiceprint_tag_id is None:
+        args.voiceprint_tag_id = app_id
+    
     config = VoiceIDConfig()
+    # 更新配置中的 org_id 和 tag_id
+    config.voiceprint_org_id = args.voiceprint_org_id
+    config.voiceprint_tag_id = args.voiceprint_tag_id
+    
     client = VoiceIDClient(config)
     
     try:

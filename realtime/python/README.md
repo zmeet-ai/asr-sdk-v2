@@ -15,7 +15,8 @@
   ```
 * 具体参数帮助指引：python auto_test_asr_v2.py --help       
 ```bash
-usage: auto_test_asr_v2.py [-h] [--mode {typewriter,json}] [--asr_type {sentence,word}] [--audio_file AUDIO_FILE]
+usage: auto_test_asr_v2.py [-h] [--mode {typewriter,json}] [--asr_type {sentence,word}] [--audio_file AUDIO_FILE] [--voiceprint VOICEPRINT] [--voiceprint_org_id VOICEPRINT_ORG_ID]
+                           [--voiceprint_tag_id VOICEPRINT_TAG_ID] [--word_time {0,1}]
 
 ASR Client
 
@@ -26,11 +27,31 @@ options:
   --asr_type {sentence,word}
                         ASR recognition mode: sentence (default) or word
   --audio_file AUDIO_FILE
-                        Path to the audio file (default: ../dataset/asr/3-1-60s.wav)
+                        Path to the audio file (default: ../dataset/asr/1006_20241223_081645_full_audio.wav)
+  --voiceprint VOICEPRINT
+                        Enable voiceprint recognition (default: 1)
+  --voiceprint_org_id VOICEPRINT_ORG_ID
+                        Organization ID for voiceprint (default: same as app_id)
+  --voiceprint_tag_id VOICEPRINT_TAG_ID
+                        Tag ID for voiceprint (default: same as app_id)
+  --word_time {0,1}     Enable word-level timing output (0: disabled, 1: enabled)
 ```
 
 ## 声纹识别
 * 运行脚本：python auto_test_speaker_id.py 
+* 启动脚本帮助
+```bash
+usage: auto_test_speaker_id.py [-h] [--voiceprint_org_id VOICEPRINT_ORG_ID] [--voiceprint_tag_id VOICEPRINT_TAG_ID]
+
+Voice ID Client
+
+options:
+  -h, --help            show this help message and exit
+  --voiceprint_org_id VOICEPRINT_ORG_ID
+                        Organization ID for voiceprint (default: same as app_id)
+  --voiceprint_tag_id VOICEPRINT_TAG_ID
+                        Tag ID for voiceprint (default: same as app_id)
+```
 * 声纹
     * 声纹注册，选择在安静的环境下进行，否则会影响识别效果；录制16k采样率，16bit量化，单声道，wav格式，文件名格式为：speaker_name.wav
         * 录制的语音时长不超过5分钟。

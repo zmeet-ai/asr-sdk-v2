@@ -108,7 +108,7 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
     url = (f"{base_url}?appid={app_id}&ts={ts}&signa={quote(signa)}"
            f"&asr_type={asr_type}&voiceprint={args.voiceprint}"
            f"&voiceprint_org_id={args.voiceprint_org_id}"
-           f"&word_time=0" # 是否逐字输出
+           f"&word_time={args.word_time}"  # 使用命令行参数
            f"&voiceprint_tag_id={args.voiceprint_tag_id}")
     
     try:
@@ -142,7 +142,7 @@ if __name__ == "__main__":
     parser.add_argument('--audio_file',
                        type=str,
                        default=os.path.join(os.path.dirname(__file__), "../dataset/asr/1006_20241223_081645_full_audio.wav"),
-                       help='Path to the audio file (default: ../dataset/asr/3-1-60s.wav)')
+                       help='Path to the audio file (default: ../dataset/asr/1006_20241223_081645_full_audio.wav)')
     parser.add_argument('--voiceprint',
                        type=str,
                        default='1',
@@ -155,6 +155,11 @@ if __name__ == "__main__":
                        type=str,
                        default=None,  # 将使用 app_id 作为默认值
                        help='Tag ID for voiceprint (default: same as app_id)')
+    parser.add_argument('--word_time',
+                       type=str,
+                       default='0',
+                       choices=['0', '1'],
+                       help='Enable word-level timing output (0: disabled, 1: enabled)')
 
     args = parser.parse_args()
     
