@@ -109,7 +109,9 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
            f"&asr_type={asr_type}&voiceprint={args.voiceprint}"
            f"&voiceprint_org_id={args.voiceprint_org_id}"
            f"&word_time={args.word_time}"  # 使用命令行参数
-           f"&voiceprint_tag_id={args.voiceprint_tag_id}")
+           f"&voiceprint_tag_id={args.voiceprint_tag_id}"
+           f"&translate_mode={args.translate_mode}"
+           f"&target_language={args.target_language}")
     
     try:
         async with websockets.connect(url) as websocket:
@@ -160,6 +162,15 @@ if __name__ == "__main__":
                        default='0',
                        choices=['0', '1'],
                        help='Enable word-level timing output (0: disabled, 1: enabled)')
+    parser.add_argument('--translate_mode',
+                       type=str,
+                       default='1',
+                       choices=['0', '1'],
+                       help='Enable translation (0: disabled, 1: enabled)')
+    parser.add_argument('--target_language',
+                       type=str,
+                       default='en',
+                       help='Target language for translation')
 
     args = parser.parse_args()
     
