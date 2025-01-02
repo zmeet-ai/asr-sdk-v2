@@ -50,6 +50,7 @@ public class AsrClient {
     private final String voiceprint;
     private final String voiceprintOrgId;
     private final String voiceprintTagId;
+    private final String wordTime;
 
     /**
      * Constructs an AsrClient with the specified parameters.
@@ -61,17 +62,17 @@ public class AsrClient {
      * @param audioFile Path to the audio file
      */
     public AsrClient(String appId, String appSecret, String printMode, String asrType, String audioFile) {
-        this(appId, appSecret, printMode, asrType, audioFile, "0", "1", appId, appId);
+        this(appId, appSecret, printMode, asrType, audioFile, "0", "1", appId, appId, "0");
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
                     String audioFile, String transMode) {
-        this(appId, appSecret, printMode, asrType, audioFile, transMode, "1", appId, appId);
+        this(appId, appSecret, printMode, asrType, audioFile, transMode, "1", appId, appId, "0");
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
                     String audioFile, String transMode,
-                    String voiceprint, String voiceprintOrgId, String voiceprintTagId) {
+                    String voiceprint, String voiceprintOrgId, String voiceprintTagId, String wordTime) {
         this.appId = appId;
         this.appSecret = appSecret;
         this.printMode = printMode;
@@ -81,6 +82,7 @@ public class AsrClient {
         this.voiceprint = voiceprint;
         this.voiceprintOrgId = voiceprintOrgId;
         this.voiceprintTagId = voiceprintTagId;
+        this.wordTime = wordTime;
     }
 
     /**
@@ -248,10 +250,12 @@ public class AsrClient {
             System.exit(1);
         }
 
-        if (args.length < 2) {
+        if (args.length < 1) {
             System.out.println("Usage: java -jar realtime_asr_voiceid.jar <mode> <args>");
             System.out.println("Modes:");
-            System.out.println("  asr <audio_file_path> [appId] [appSecret] [printMode] [asrType] [transMode] [recall]");
+            System.out.println("  asr [audio_file_path] [appId] [appSecret] [printMode] [asrType] [transMode] [voiceprint] [voiceprintOrgId] [voiceprintTagId] [wordTime]");
+            System.out.println("    - audio_file_path: Path to audio file (default: ../dataset/asr/1006_20241223_081645_full_audio.wav)");
+            System.out.println("    - wordTime: Enable word-level timing (0: disabled, 1: enabled, default: 0)");
             System.out.println("  register <audio_file_path> <speaker_name> [appId] [appSecret]");
             System.out.println("  search <audio_file_path> [appId] [appSecret]");
             System.out.println("  delete-all [appId] [appSecret]");
@@ -259,25 +263,34 @@ public class AsrClient {
         }
 
         String mode = args[0];
-        String serverUrl = "https://audio.abcpen.com";
+        String defaultAudioFile = "../dataset/asr/1006_20241223_081645_full_audio.wav";
+        String serverUrl = "https://voiceid.abcpen.com";
+
+        if (mode.equals("register") && args.length < 3) {
+            System.out.println("Register mode requires audio_file_path and speaker_name");
+            System.exit(1);
+        } else if (mode.equals("search") && args.length < 2) {
+            System.out.println("Search mode requires audio_file_path");
+            System.exit(1);
+        }
 
         switch (mode) {
             case "asr":
-                String audioFile = args[1];
+                String audioFile = args.length > 1 ? args[1] : defaultAudioFile;
                 String printMode = args.length > 4 ? args[4] : "typewriter";
                 String asrType = args.length > 5 ? args[5] : "word";
                 String transMode = args.length > 6 ? args[6] : "0";
                 String voiceprint = args.length > 7 ? args[7] : "1";
-                
                 String voiceprintOrgId = args.length > 8 ? args[8] : defaultAppId;
                 String voiceprintTagId = args.length > 9 ? args[9] : defaultAppId;
-                
+                String wordTime = args.length > 10 ? args[10] : "0";
+
                 if (args.length > 2) defaultAppId = args[2];
                 if (args.length > 3) defaultAppSecret = args[3];
 
                 AsrClient client = new AsrClient(defaultAppId, defaultAppSecret, printMode, 
                     asrType, audioFile, transMode,
-                    voiceprint, voiceprintOrgId, voiceprintTagId);
+                    voiceprint, voiceprintOrgId, voiceprintTagId, wordTime);
                 client.start();
                 break;
 
