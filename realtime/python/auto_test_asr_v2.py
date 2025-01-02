@@ -164,7 +164,7 @@ if __name__ == "__main__":
                        help='Enable word-level timing output (0: disabled, 1: enabled)')
     parser.add_argument('--translate_mode',
                        type=str,
-                       default='1',
+                       default='0',
                        choices=['0', '1'],
                        help='Enable translation (0: disabled, 1: enabled)')
     parser.add_argument('--target_language',
