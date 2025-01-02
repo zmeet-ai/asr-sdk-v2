@@ -104,7 +104,7 @@ async function connectToServer(printMode, asrType) {
         throw new Error('缺少必需的环境变量：ZMEET_APP_ID 或 ZMEET_APP_SECRET 未设置');
     }
     
-    console.log(`Using appId: ${appId}`);
+    console.log(`Using appId: ${appId}, appSecret: ${appSecret}`);
     
     const baseUrl = "wss://audio.abcpen.com:8443/asr-realtime/v2/ws";
     
@@ -112,7 +112,8 @@ async function connectToServer(printMode, asrType) {
     const url = `${baseUrl}?appid=${appId}&ts=${ts}&signa=${encodeURIComponent(signa)}&asr_type=${asrType}` +
         `&voiceprint=${options.voiceprint}` +
         `&voiceprint_org_id=${options.voiceprint_org_id}` +
-        `&voiceprint_tag_id=${options.voiceprint_tag_id}`;
+        `&voiceprint_tag_id=${options.voiceprint_tag_id}` +
+        `&word_time=${options.word_time}`;
 
     const ws = new WebSocket(url);
 
@@ -145,10 +146,11 @@ async function connectToServer(printMode, asrType) {
 program
     .option('--mode <type>', 'Output mode: typewriter or json', 'typewriter')
     .option('--asr_type <type>', 'ASR recognition mode: sentence or word', 'word')
-    .option('--voiceprint <boolean>', 'Enable voiceprint recognition', true)
+    .option('--voiceprint <string>', 'Enable voiceprint recognition', '1')
     .option('--voiceprint_org_id <string>', 'Organization ID for voiceprint', process.env.ZMEET_APP_ID)
     .option('--voiceprint_tag_id <string>', 'Tag ID for voiceprint', process.env.ZMEET_APP_ID)
-    .option('--audio_file <path>', '音频文件路径', path.join(__dirname, "../dataset/asr/test.wav"))
+    .option('--word_time <string>', 'Enable word-level timing output (0: disabled, 1: enabled)', '0')
+    .option('--audio_file <path>', '音频文件路径', path.join(__dirname, "../dataset/asr/1006_20241223_081645_full_audio.wav"))
     .parse(process.argv);
 
 const options = program.opts();
