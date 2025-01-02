@@ -66,6 +66,8 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 | scene                | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
 | asr_type             | string | 否   | 识别结果输出类型，sentence，输出逐句结果；word，输出逐字和逐句结果，默认为word。 | "word"                                                       |
 | word_time            | bool   | 否   | 开启后，在result字段，包含每个字词的时间戳                   | 0                                                            |
+| translate_mode       | bool   | 否   | 是否开启同声传译                                             | 0                                                            |
+| target_language      | string | 否   | 开启同声传译后，翻译后的目标语言                             | "en", 表示英文；别的语言参考下文中的**语言参数**             |
 | noise_threshold      | float  | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果**（**文档待完善**） |                                                              |
 | audio_power_far_near | float  | 否   | 多人说话的时候，区分远场语音和近场语音（**文档待完善**）     |                                                              |
 
@@ -75,19 +77,16 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
                          //传输该控制命令的时候，将下面的json数据编码成字符串传输（不是二进制数据）
                          {
                              "translate": {
-                                 "src_language": "zh",
-                                 "tgt_language": "en",
+                                 "target_language": "en",
                                  "enabled": 1
-                             },
-                             "scene": "court"
+                             }
                          }
  ```
 
 实时变更参数说明：
 
 * 语言参数
-  * src_lang:  源语言，如“zh', "de"等；如输入空格字符串表示自动识别源语言
-  * tgt_lang: 目标语言，如”de", "ja" 等
+  * target_language: 目标语言，如”de", "ja" 等
   * 常见翻译语种：控制把源语言转换成什么类型的语言；<br/>中文：cn<br/>英文：en<br/>日语：ja<br/>韩语：ko<br/>俄语：ru<br/>法语：fr<br/>西班牙语：es<br/>意大利：vi<br/>
   * 可选国家编码列表有：af, am, ar, as, az, ba, be, bg, bn, bo, br, bs, ca, cs, cy, da, de, el, en, es, et, eu, fa, fi, fo, fr, gl, gu, ha, haw, he, hi, hr, ht, hu, hy, id, is, it, ja, jw, ka, kk, km, kn, ko, la, lb, ln, lo, lt, lv, mg, mi, mk, ml, mn, mr, ms, mt, my, ne, nl, nn, no, oc, pa, pl, ps, pt, ro, ru, sa, sd, si, sk, sl, sn, so, sq, sr, su, sv, sw, ta, te, tg, th, tk, tl, tr, tt, uk, ur, uz, vi, yi, yo, zh
 * enabled： 是否打开同声传译，1表示打开，0表示关闭同声传译
@@ -178,13 +177,7 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 变更源语言和目标语言, 和变更场景，统一使用下述指令，实时发送到现有的已有的websocket链接上（和语音数据的二进制数据不同）
 
-{"config": { "lang": {"source_lang": "zh", "target_lang": "en"}}, "scene": "law"}
-
-* lang字典表示源语言和目标语言切换（有lang字典的时候，source_lang和target_lang必须同时存在），scene表示场景切换； 
-* lang和scene两者或的存在，也就是：
-  * 有lang，无scene
-  * 无lang，有scene
-  * 有lang，有scene
+{"translate": {"target_language": "en"}}
 
 ## 白名单
 
