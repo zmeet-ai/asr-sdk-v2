@@ -259,12 +259,14 @@ public class AsrClient {
             System.out.println("  register <audio_file_path> <speaker_name> [appId] [appSecret]");
             System.out.println("  search <audio_file_path> [appId] [appSecret]");
             System.out.println("  delete-all [appId] [appSecret]");
+            System.out.println("  delete-speaker <speaker_name> [appId] [appSecret]");
+            System.out.println("  count-voices [appId] [appSecret]");
             System.exit(1);
         }
 
         String mode = args[0];
         String defaultAudioFile = "../dataset/asr/1006_20241223_081645_full_audio.wav";
-        String serverUrl = "https://voiceid.abcpen.com";
+        String serverUrl = "https://voiceid.abcpen.com:8443";
 
         if (mode.equals("register") && args.length < 3) {
             System.out.println("Register mode requires audio_file_path and speaker_name");
@@ -320,6 +322,27 @@ public class AsrClient {
 
                 VoiceIdClient deleteClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
                 deleteClient.deleteAllVoices(defaultAppId, defaultAppId);
+                break;
+
+            case "delete-speaker":
+                if (args.length < 2) {
+                    System.out.println("Speaker name is required for delete-speaker mode");
+                    System.exit(1);
+                }
+                String speakerName = args[1];
+                if (args.length > 2) defaultAppId = args[2];
+                if (args.length > 3) defaultAppSecret = args[3];
+
+                VoiceIdClient deleteSpeakerClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                deleteSpeakerClient.deleteSpeaker(speakerName, defaultAppId, defaultAppId);
+                break;
+
+            case "count-voices":
+                if (args.length > 1) defaultAppId = args[1];
+                if (args.length > 2) defaultAppSecret = args[2];
+
+                VoiceIdClient countClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                countClient.countVoices(defaultAppId, defaultAppId);
                 break;
 
             default:
