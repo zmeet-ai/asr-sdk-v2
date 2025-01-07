@@ -94,10 +94,10 @@ def generate_signature(app_id: str, api_key: str) -> str:
     signa = str(signa, 'utf-8')
     return signa, ts
 
-async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
+async def connect_to_server(print_mode: str, asr_type: str, audio_file: str, metadata: str):
     app_id = os.getenv("ZMEET_APP_ID")
     app_secret = os.getenv("ZMEET_APP_SECRET")
-    
+    logger.info(f"metadata: {metadata}, type: {type(metadata)}")
     if not app_id or not app_secret:
         raise ValueError("缺少必需的环境变量：ZMEET_APP_ID 或 ZMEET_APP_SECRET 未设置")
     
@@ -108,10 +108,11 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str):
     url = (f"{base_url}?appid={app_id}&ts={ts}&signa={quote(signa)}"
            f"&asr_type={asr_type}&voiceprint={args.voiceprint}"
            f"&voiceprint_org_id={args.voiceprint_org_id}"
-           f"&word_time={args.word_time}"  # 使用命令行参数
+           f"&word_time={args.word_time}"
            f"&voiceprint_tag_id={args.voiceprint_tag_id}"
            f"&translate_mode={args.translate_mode}"
-           f"&target_language={args.target_language}")
+           f"&target_language={args.target_language}"
+           f"&metadata={quote(args.metadata)}")
     
     try:
         async with websockets.connect(url) as websocket:
@@ -171,6 +172,21 @@ if __name__ == "__main__":
                        type=str,
                        default='en',
                        help='Target language for translation')
+    # 用户自定义的metadata, 直接回传给客户, 这里仅作示例，可以传递任意json字符串（stringfy）
+    metadata_sample = {
+        "user_id": "1234567890",
+        "user_name": "John Doe",
+        "user_email": "john.doe@example.com",
+        "user_phone": "1234567890",
+        "user_role": "student",
+        "user_class": "1001",
+        "user_school": "ABC School",
+        "user_grade": "6"
+    }
+    parser.add_argument('--metadata',
+                       type=str,
+                       default=json.dumps(metadata_sample, ensure_ascii=False),
+                       help='Metadata for the request, callback to client (JSON string)')
 
     args = parser.parse_args()
     
@@ -181,4 +197,4 @@ if __name__ == "__main__":
     if args.voiceprint_tag_id is None:
         args.voiceprint_tag_id = app_id
 
-    asyncio.run(connect_to_server(args.mode, args.asr_type, args.audio_file))
+    asyncio.run(connect_to_server(args.mode, args.asr_type, args.audio_file, args.metadata))

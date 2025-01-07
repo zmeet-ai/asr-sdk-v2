@@ -1,5 +1,6 @@
 package com.abcpen;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +23,14 @@ import org.java_websocket.handshake.ServerHandshake;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import io.github.cdimascio.dotenv.Dotenv;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import java.util.Arrays;
 
 /**
  * AsrClient handles real-time audio streaming and speech recognition.
@@ -51,6 +60,7 @@ public class AsrClient {
     private final String voiceprintOrgId;
     private final String voiceprintTagId;
     private final String wordTime;
+    private final String metadata;
 
     /**
      * Constructs an AsrClient with the specified parameters.
@@ -62,17 +72,25 @@ public class AsrClient {
      * @param audioFile Path to the audio file
      */
     public AsrClient(String appId, String appSecret, String printMode, String asrType, String audioFile) {
-        this(appId, appSecret, printMode, asrType, audioFile, "0", "1", appId, appId, "0");
+        this(appId, appSecret, printMode, asrType, audioFile, "0", "1", appId, appId, "0", getDefaultMetadata());
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
                     String audioFile, String transMode) {
-        this(appId, appSecret, printMode, asrType, audioFile, transMode, "1", appId, appId, "0");
+        this(appId, appSecret, printMode, asrType, audioFile, transMode, "1", appId, appId, "0", getDefaultMetadata());
     }
 
     public AsrClient(String appId, String appSecret, String printMode, String asrType, 
                     String audioFile, String transMode,
                     String voiceprint, String voiceprintOrgId, String voiceprintTagId, String wordTime) {
+        this(appId, appSecret, printMode, asrType, audioFile, transMode,
+             voiceprint, voiceprintOrgId, voiceprintTagId, wordTime, getDefaultMetadata());
+    }
+
+    public AsrClient(String appId, String appSecret, String printMode, String asrType, 
+                    String audioFile, String transMode,
+                    String voiceprint, String voiceprintOrgId, String voiceprintTagId, 
+                    String wordTime, String metadata) {
         this.appId = appId;
         this.appSecret = appSecret;
         this.printMode = printMode;
@@ -83,6 +101,7 @@ public class AsrClient {
         this.voiceprintOrgId = voiceprintOrgId;
         this.voiceprintTagId = voiceprintTagId;
         this.wordTime = wordTime;
+        this.metadata = metadata;
     }
 
     /**
@@ -139,9 +158,10 @@ public class AsrClient {
             String wsUrl = String.format(
                     "wss://audio.abcpen.com:8443/asr-realtime/v2/ws?appid=%s&ts=%s&signa=%s" +
                     "&asr_type=%s&trans_mode=%s&target_lang=%s&pd=%s" +
-                    "&voiceprint=%s&voiceprint_org_id=%s&voiceprint_tag_id=%s",
+                    "&voiceprint=%s&voiceprint_org_id=%s&voiceprint_tag_id=%s&word_time=%s&metadata=%s",
                     appId, ts, signa, asrType, transMode, TARGET_LANG, PD,
-                    voiceprint, voiceprintOrgId, voiceprintTagId);
+                    voiceprint, voiceprintOrgId, voiceprintTagId, wordTime,
+                    URLEncoder.encode(metadata, StandardCharsets.UTF_8.toString()));
 
             wsClient = new WebSocketClient(new URI(wsUrl)) {
                 @Override
@@ -183,7 +203,7 @@ public class AsrClient {
      * @throws IOException if message processing fails
      */
     private void processMessage(String message) throws IOException {
-        Map<String, Object> asrJson = objectMapper.readValue(message, HashMap.class);
+        Map<String, Object> asrJson = objectMapper.readValue(message, new TypeReference<Map<String, Object>>() {});
         boolean isFinal = (boolean) asrJson.getOrDefault("is_final", false);
         int segId = (int) asrJson.getOrDefault("seg_id", 0);
         String asr = (String) asrJson.getOrDefault("asr", "");
@@ -216,7 +236,7 @@ public class AsrClient {
                 int bytesRead;
 
                 while ((bytesRead = fis.read(buffer)) != -1) {
-                    wsClient.send(buffer);
+                    wsClient.send(bytesRead == buffer.length ? buffer : Arrays.copyOf(buffer, bytesRead));
                     Thread.sleep(SLEEP_TIME_DURATION);
                 }
 
@@ -250,104 +270,142 @@ public class AsrClient {
             System.exit(1);
         }
 
-        if (args.length < 1) {
-            System.out.println("Usage: java -jar realtime_asr_voiceid.jar <mode> <args>");
-            System.out.println("Modes:");
-            System.out.println("  asr [audio_file_path] [appId] [appSecret] [printMode] [asrType] [transMode] [voiceprint] [voiceprintOrgId] [voiceprintTagId] [wordTime]");
-            System.out.println("    - audio_file_path: Path to audio file (default: ../dataset/asr/1006_20241223_081645_full_audio.wav)");
-            System.out.println("    - wordTime: Enable word-level timing (0: disabled, 1: enabled, default: 0)");
-            System.out.println("  register <audio_file_path> <speaker_name> [appId] [appSecret]");
-            System.out.println("  search <audio_file_path> [appId] [appSecret]");
-            System.out.println("  delete-all [appId] [appSecret]");
-            System.out.println("  delete-speaker <speaker_name> [appId] [appSecret]");
-            System.out.println("  count-voices [appId] [appSecret]");
-            System.exit(1);
-        }
-
-        String mode = args[0];
-        String defaultAudioFile = "../dataset/asr/1006_20241223_081645_full_audio.wav";
-        String serverUrl = "https://voiceid.abcpen.com:8443";
-
-        if (mode.equals("register") && args.length < 3) {
-            System.out.println("Register mode requires audio_file_path and speaker_name");
-            System.exit(1);
-        } else if (mode.equals("search") && args.length < 2) {
-            System.out.println("Search mode requires audio_file_path");
-            System.exit(1);
-        }
-
-        switch (mode) {
-            case "asr":
-                String audioFile = args.length > 1 ? args[1] : defaultAudioFile;
-                String printMode = args.length > 4 ? args[4] : "typewriter";
-                String asrType = args.length > 5 ? args[5] : "word";
-                String transMode = args.length > 6 ? args[6] : "0";
-                String voiceprint = args.length > 7 ? args[7] : "1";
-                String voiceprintOrgId = args.length > 8 ? args[8] : defaultAppId;
-                String voiceprintTagId = args.length > 9 ? args[9] : defaultAppId;
-                String wordTime = args.length > 10 ? args[10] : "0";
-
-                if (args.length > 2) defaultAppId = args[2];
-                if (args.length > 3) defaultAppSecret = args[3];
-
-                AsrClient client = new AsrClient(defaultAppId, defaultAppSecret, printMode, 
-                    asrType, audioFile, transMode,
-                    voiceprint, voiceprintOrgId, voiceprintTagId, wordTime);
-                client.start();
-                break;
-
-            case "register":
-                if (args.length < 3) {
-                    System.out.println("Error: register mode requires audio_file_path and speaker_name");
-                    System.exit(1);
-                }
-                if (args.length > 3) defaultAppId = args[3];
-                if (args.length > 4) defaultAppSecret = args[4];
-
-                VoiceIdClient registerClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
-                registerClient.registerVoice(args[1], args[2], defaultAppId, defaultAppId);
-                break;
-
-            case "search":
-                if (args.length > 2) defaultAppId = args[2];
-                if (args.length > 3) defaultAppSecret = args[3];
+        Options options = new Options();
+        
+        // 基础选项
+        options.addOption(Option.builder("m")
+                .longOpt("mode")
+                .desc("运行模式: asr, register, search, delete-all, delete-speaker, count-voices")
+                .hasArg()
+                .required()
+                .build());
                 
-                VoiceIdClient searchClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
-                searchClient.searchVoice(args[1], defaultAppId, defaultAppId);
-                break;
+        options.addOption(Option.builder("f")
+                .longOpt("audio-file")
+                .desc("音频文件路径")
+                .hasArg()
+                .build());
+                
+        // ASR相关选项
+        options.addOption(Option.builder("p")
+                .longOpt("print-mode")
+                .desc("打印模式: typewriter 或 json")
+                .hasArg()
+                .build());
+        options.addOption(Option.builder("t")
+                .longOpt("asr-type")
+                .desc("识别类型: word 或 sentence")
+                .hasArg()
+                .build());
+        options.addOption(Option.builder()
+                .longOpt("trans-mode")
+                .desc("翻译模式")
+                .hasArg()
+                .build());
+        options.addOption(Option.builder()
+                .longOpt("voiceprint")
+                .desc("声纹识别开关")
+                .hasArg()
+                .build());
+        
+        // 声纹识别相关选项
+        options.addOption(Option.builder("n")
+                .longOpt("speaker-name")
+                .desc("说话人姓名")
+                .hasArg()
+                .build());
+        
+        try {
+            CommandLineParser parser = new DefaultParser();
+            CommandLine cmd = parser.parse(options, args);
+            
+            String mode = cmd.getOptionValue("m");
+            String defaultAudioFile = "../dataset/asr/1006_20241223_081645_full_audio.wav";
+            String serverUrl = "https://voiceid.abcpen.com:8443";
 
-            case "delete-all":
-                if (args.length > 2) defaultAppId = args[2];
-                if (args.length > 3) defaultAppSecret = args[3];
+            switch (mode) {
+                case "asr":
+                    String audioFile = cmd.getOptionValue("f", defaultAudioFile);
+                    String printMode = cmd.getOptionValue("p", "typewriter");
+                    String asrType = cmd.getOptionValue("t", "word");
+                    String transMode = cmd.getOptionValue("trans-mode", "0");
+                    String voiceprint = cmd.getOptionValue("voiceprint", "1");
+                    String voiceprintOrgId = defaultAppId;
+                    String voiceprintTagId = defaultAppId;
+                    String wordTime = "0";
 
-                VoiceIdClient deleteClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
-                deleteClient.deleteAllVoices(defaultAppId, defaultAppId);
-                break;
+                    AsrClient client = new AsrClient(defaultAppId, defaultAppSecret, printMode, 
+                        asrType, audioFile, transMode,
+                        voiceprint, voiceprintOrgId, voiceprintTagId, wordTime);
+                    client.start();
+                    break;
 
-            case "delete-speaker":
-                if (args.length < 2) {
-                    System.out.println("Speaker name is required for delete-speaker mode");
-                    System.exit(1);
-                }
-                String speakerName = args[1];
-                if (args.length > 2) defaultAppId = args[2];
-                if (args.length > 3) defaultAppSecret = args[3];
+                case "register":
+                    String registerAudioFile = cmd.getOptionValue("f");
+                    String speakerName = cmd.getOptionValue("n");
+                    if (registerAudioFile == null || speakerName == null) {
+                        throw new ParseException("register 模式需要指定音频文件(-f)和说话人姓名(-n)");
+                    }
+                    VoiceIdClient registerClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                    registerClient.registerVoice(registerAudioFile, speakerName, defaultAppId, defaultAppId);
+                    break;
 
-                VoiceIdClient deleteSpeakerClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
-                deleteSpeakerClient.deleteSpeaker(speakerName, defaultAppId, defaultAppId);
-                break;
+                case "search":
+                    String searchAudioFile = cmd.getOptionValue("f");
+                    if (searchAudioFile == null) {
+                        throw new ParseException("search 模式需要指定音频文件(-f)");
+                    }
+                    VoiceIdClient searchClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                    searchClient.searchVoice(searchAudioFile, defaultAppId, defaultAppId);
+                    break;
 
-            case "count-voices":
-                if (args.length > 1) defaultAppId = args[1];
-                if (args.length > 2) defaultAppSecret = args[2];
+                case "delete-all":
+                    VoiceIdClient deleteClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                    deleteClient.deleteAllVoices(defaultAppId, defaultAppId);
+                    break;
 
-                VoiceIdClient countClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
-                countClient.countVoices(defaultAppId, defaultAppId);
-                break;
+                case "delete-speaker":
+                    String deleteSpeakerName = cmd.getOptionValue("n");
+                    if (deleteSpeakerName == null) {
+                        throw new ParseException("delete-speaker 模式需要指定说话人姓名(-n)");
+                    }
+                    VoiceIdClient deleteSpeakerClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                    deleteSpeakerClient.deleteSpeaker(deleteSpeakerName, defaultAppId, defaultAppId);
+                    break;
 
-            default:
-                System.out.println("Unknown mode: " + mode);
-                System.exit(1);
+                case "count-voices":
+                    VoiceIdClient countClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
+                    countClient.countVoices(defaultAppId, defaultAppId);
+                    break;
+
+                default:
+                    throw new ParseException("未知的模式: " + mode);
+            }
+            
+        } catch (ParseException e) {
+            System.err.println("参数错误: " + e.getMessage());
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("AsrClient", options);
+            System.exit(1);
+        }
+    }
+
+    private static String getDefaultMetadata() {
+        try {
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("user_id", "1234567890");
+            metadata.put("user_name", "John Doe");
+            metadata.put("user_email", "john.doe@example.com");
+            metadata.put("user_phone", "1234567890");
+            metadata.put("user_role", "student");
+            metadata.put("user_class", "1001");
+            metadata.put("user_school", "ABC School");
+            metadata.put("user_grade", "6");
+            
+            return new ObjectMapper().writeValueAsString(metadata);
+        } catch (Exception e) {
+            LOGGER.error("Failed to create default metadata: {}", e.getMessage());
+            return "{}";
         }
     }
 }

@@ -96,6 +96,18 @@ function receiveRecognitionResult(ws, printMode) {
     });
 }
 
+// 添加默认的 metadata
+const defaultMetadata = {
+    "user_id": "1234567890",
+    "user_name": "John Doe",
+    "user_email": "john.doe@example.com",
+    "user_phone": "1234567890",
+    "user_role": "student",
+    "user_class": "1001",
+    "user_school": "ABC School",
+    "user_grade": "6"
+};
+
 async function connectToServer(printMode, asrType) {
     // 从环境变量中读取
     const appId = process.env.ZMEET_APP_ID;
@@ -115,7 +127,8 @@ async function connectToServer(printMode, asrType) {
         `&voiceprint=${options.voiceprint}` +
         `&voiceprint_org_id=${options.voiceprint_org_id}` +
         `&voiceprint_tag_id=${options.voiceprint_tag_id}` +
-        `&word_time=${options.word_time}`;
+        `&word_time=${options.word_time}` +
+        `&metadata=${encodeURIComponent(JSON.stringify(options.metadata))}`;
 
     const ws = new WebSocket(url);
 
@@ -153,6 +166,7 @@ program
     .option('--voiceprint_tag_id <string>', 'Tag ID for voiceprint', process.env.ZMEET_APP_ID)
     .option('--word_time <string>', 'Enable word-level timing output (0: disabled, 1: enabled)', '0')
     .option('--audio_file <path>', '音频文件路径', path.join(__dirname, "../dataset/asr/1006_20241223_081645_full_audio.wav"))
+    .option('--metadata <string>', 'Metadata for the request', JSON.stringify(defaultMetadata))
     .parse(process.argv);
 
 const options = program.opts();
