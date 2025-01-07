@@ -68,6 +68,7 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 | word_time            | bool   | 否   | 开启后，在result字段，包含每个字词的时间戳                   | 0                                                            |
 | translate_mode       | bool   | 否   | 是否开启同声传译                                             | 0                                                            |
 | target_language      | string | 否   | 开启同声传译后，翻译后的目标语言                             | "en", 表示英文；别的语言参考下文中的**语言参数**             |
+| metadata             | string | 否   | 提交的原始字符串，如果是json请先转化成字符串（参考java/python/nodejs示例代码）;返回的时候，回传的json字符串和这里提交的字符串一样。 | ""                                                           |
 | noise_threshold      | float  | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果**（**文档待完善**） |                                                              |
 | audio_power_far_near | float  | 否   | 多人说话的时候，区分远场语音和近场语音（**文档待完善**）     |                                                              |
 
