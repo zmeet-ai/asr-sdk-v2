@@ -207,9 +207,9 @@ class VoiceIDClient:
 
     def delete_speaker(self, speaker_name: str) -> Dict[str, Any]:
         """删除指定说话人的声纹"""
-        url = f"{self.config.url_server}/voiceid/del-spk-name"
+        url = f"{self.config.url_server}/voiceid/delete-speakers"
         params = {
-            "spk_name": speaker_name,
+            "speaker": speaker_name,
             "org_id": self.config.org_id,
             "tag_id": self.config.tag_id
         }

@@ -115,7 +115,7 @@ public class VoiceIdClient {
     public void deleteSpeaker(String speakerName, String orgId, String tagId) {
         try {
             String[] signatureData = SignatureUtil.generateSignature(appId, appSecret);
-            String url = serverUrl + "/voiceid/delete-speakers?spk_name=" + speakerName 
+            String url = serverUrl + "/voiceid/delete-speakers?speaker=" + speakerName 
                 + "&org_id=" + orgId + "&tag_id=" + tagId;
 
             Request request = new Request.Builder()
