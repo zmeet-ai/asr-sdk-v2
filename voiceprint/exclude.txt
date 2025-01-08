@@ -1,7 +1,0 @@
-node_modules
-.next
-__pycache__
-.git
-.env
-docker-compose.yaml
-media_files
