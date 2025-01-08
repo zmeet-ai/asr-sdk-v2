@@ -112,6 +112,8 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str, met
            f"&voiceprint_tag_id={args.voiceprint_tag_id}"
            f"&translate_mode={args.translate_mode}"
            f"&target_language={args.target_language}"
+           f"&audio_channels=1"
+           f"&active_channel=merge"
            f"&metadata={quote(args.metadata)}")
     
     try:
@@ -176,11 +178,6 @@ if __name__ == "__main__":
     metadata_sample = {
         "user_id": "1234567890",
         "user_name": "John Doe",
-        "user_email": "john.doe@example.com",
-        "user_phone": "1234567890",
-        "user_role": "student",
-        "user_class": "1001",
-        "user_school": "ABC School",
         "user_grade": "6"
     }
     parser.add_argument('--metadata',
