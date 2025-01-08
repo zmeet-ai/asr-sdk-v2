@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import requests
 import time
 import uuid
@@ -72,7 +74,7 @@ def main():
     audio_url = "https://zos.abcpen.com/denoise/test/weiya.wav"
     app_id = "test_app"
     task_id = str(uuid.uuid4())
-    language = "en"
+    language = "zh"
 
     # 提交任务
     submit_response = submit_task(audio_url, app_id, task_id, language)

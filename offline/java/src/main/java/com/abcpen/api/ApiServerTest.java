@@ -32,7 +32,7 @@ public class ApiServerTest {
         String audioUrl = "https://zos.abcpen.com/denoise/test/weiya.wav";
         String appId = "test_app";
         String taskId = UUID.randomUUID().toString();
-        String language = "en";
+        String language = "zh";
 
         try {
             // 提交任务
