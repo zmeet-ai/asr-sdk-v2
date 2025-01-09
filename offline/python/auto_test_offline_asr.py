@@ -6,12 +6,17 @@ import uuid
 import hashlib
 import hmac
 import base64
+import os
+import dotenv
+
+dotenv.load_dotenv()
 
 # FastAPI 服务的 URL
 BASE_URL = "https://audio.abcpen.com:8443"
+#BASE_URL = "http://127.0.0.1:2002"
 
-application_key = "test1"
-application_secret = "2258ACC4-199B-4DCB-B6F3-C2485C63E85A"
+application_key = os.getenv("ZMEET_APP_ID")
+application_secret = os.getenv("ZMEET_APP_SECRET")
 
 # generate new signature for the request (client side)
 def generate_signature(app_id: str, api_key: str) -> str:
@@ -48,6 +53,8 @@ def submit_task(audio_url, app_id, task_id, language):
         json={
             "audio_url": audio_url,
             "app_id": app_id,
+            "org_id": app_id,
+            "tag_id": app_id,
             "task_id": task_id,
             "language": language,
             "audio_type": "asr_sd",
@@ -71,8 +78,8 @@ def get_result(task_id):
 
 # 主函数
 def main():
-    audio_url = "https://zos.abcpen.com/denoise/test/weiya.wav"
-    app_id = "test_app"
+    audio_url = "https://zos.abcpen.com/test/1006_20241223_081645_full_audio.wav"
+    app_id = os.getenv("ZMEET_APP_ID")
     task_id = str(uuid.uuid4())
     language = "zh"
 

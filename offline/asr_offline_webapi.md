@@ -39,9 +39,11 @@
 | 参数名 | 类型 | 必填 | 说明 |
 |--------|------|------|------|
 | audio_url | string | 是 | 待转写音频的URL地址 |
-| app_id | string | 是 | 应用ID |
+| app_id | string | 是 | 您的app_id，应用ID， **声纹识别的时候必须参数** |
+| org_id | string | 否 | 您的org_id, **声纹识别的时候必须参数** |
+| tag_id | string | 否 | 您的tag_id, **声纹识别的时候必须参数** |
 | task_id | string | 是 | 任务唯一标识符 |
-| language | string | 是 | 音频语言，如"en"表示英语 |
+| language | string | 否 | 音频语言，如"zh"表示英语 |
 
 ### 2. 查询任务状态
 
