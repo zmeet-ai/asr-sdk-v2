@@ -162,7 +162,7 @@ public class AsrClient {
                     appId, ts, signa, asrType, transMode, TARGET_LANG, PD,
                     voiceprint, voiceprintOrgId, voiceprintTagId, wordTime,
                     URLEncoder.encode(metadata, StandardCharsets.UTF_8.toString()));
-
+            System.out.println(wsUrl);
             wsClient = new WebSocketClient(new URI(wsUrl)) {
                 @Override
                 public void onOpen(ServerHandshake handshakedata) {

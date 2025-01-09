@@ -292,7 +292,7 @@ def main():
     
     try:
         # 执行所有操作
-        #client.register_directory()
+        client.register_directory()
         client.count_voices()
         client.list_voices()
         
