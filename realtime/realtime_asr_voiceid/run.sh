@@ -19,13 +19,22 @@ show_help() {
     echo "    register <audio_file> <speaker_name> - 注册声纹"
     echo "    search <audio_file>  - 搜索声纹"
     echo "    delete-all          - 删除所有声纹"
+    echo "    delete-speaker <speaker_name> - 删除指定说话人"
+    echo "    count-voices        - 统计声纹数量"
+    echo "    sentence <audio_file> [options] - 句子识别"
     echo "  all [mode] [args] - 清理、编译、打包并运行"
+    echo
+    echo "Sentence mode options:"
+    echo "  --language <lang>  - 设置语言 (默认: zh)"
+    echo "  --fast <true/false> - 是否使用快速模式 (默认: true)"
     echo
     echo "Examples:"
     echo "  $0 run asr /path/to/audio.wav"
     echo "  $0 run register /path/to/audio.wav speaker_name"
     echo "  $0 run search /path/to/audio.wav"
     echo "  $0 run delete-all"
+    echo "  $0 run delete-speaker speaker_name"
+    echo "  $0 run sentence /path/to/audio.wav --language zh --fast true"
     echo "  $0 all asr /path/to/audio.wav"
 }
 
@@ -115,6 +124,51 @@ case "$1" in
                 ;;
             "delete-all")
                 run_program "delete-all"
+                ;;
+            "delete-speaker")
+                if [ -z "$1" ]; then
+                    echo -e "${RED}Error: Speaker name is required for delete-speaker mode${NC}"
+                    show_help
+                    exit 1
+                fi
+                run_program "delete-speaker" "$@"
+                ;;
+            "count-voices")
+                run_program "count-voices"
+                ;;
+            "sentence")
+                if [ -z "$1" ]; then
+                    echo -e "${RED}Error: Audio file path is required for sentence mode${NC}"
+                    show_help
+                    exit 1
+                fi
+                
+                # 设置默认值
+                LANGUAGE="zh"
+                FAST="true"
+                
+                # 解析参数
+                AUDIO_FILE="$1"
+                shift
+                while [ "$#" -gt 0 ]; do
+                    case "$1" in
+                        --language)
+                            LANGUAGE="$2"
+                            shift 2
+                            ;;
+                        --fast)
+                            FAST="$2"
+                            shift 2
+                            ;;
+                        *)
+                            echo -e "${RED}Error: Unknown option: $1${NC}"
+                            show_help
+                            exit 1
+                            ;;
+                    esac
+                done
+                
+                run_program "sentence" "-f" "$AUDIO_FILE" "--language" "$LANGUAGE" "--fast" "$FAST"
                 ;;
             *)
                 echo -e "${RED}Error: Unknown mode: $mode${NC}"

@@ -275,7 +275,7 @@ public class AsrClient {
         // 基础选项
         options.addOption(Option.builder("m")
                 .longOpt("mode")
-                .desc("运行模式: asr, register, search, delete-all, delete-speaker, count-voices")
+                .desc("运行模式: asr, register, search, delete-all, delete-speaker, count-voices, sentence")
                 .hasArg()
                 .required()
                 .build());
@@ -312,6 +312,17 @@ public class AsrClient {
         options.addOption(Option.builder("n")
                 .longOpt("speaker-name")
                 .desc("说话人姓名")
+                .hasArg()
+                .build());
+        
+        options.addOption(Option.builder()
+                .longOpt("language")
+                .desc("语言: zh, en, ru 等")
+                .hasArg()
+                .build());
+        options.addOption(Option.builder()
+                .longOpt("fast")
+                .desc("是否使用快速模式")
                 .hasArg()
                 .build());
         
@@ -376,6 +387,20 @@ public class AsrClient {
                 case "count-voices":
                     VoiceIdClient countClient = new VoiceIdClient(defaultAppId, defaultAppSecret, serverUrl);
                     countClient.countVoices(defaultAppId, defaultAppId);
+                    break;
+
+                case "sentence":
+                    String sentenceAudioFile = cmd.getOptionValue("f", defaultAudioFile);
+                    String language = cmd.getOptionValue("language", "zh");
+                    boolean fast = Boolean.parseBoolean(cmd.getOptionValue("fast", "true"));
+                    String sentenceServerUrl = "https://audio.abcpen.com:8443";
+                    
+                    SentenceClient sentenceClient = new SentenceClient(
+                        defaultAppId, 
+                        defaultAppSecret, 
+                        sentenceServerUrl
+                    );
+                    sentenceClient.recognizeSentence(sentenceAudioFile, language, fast);
                     break;
 
                 default:
