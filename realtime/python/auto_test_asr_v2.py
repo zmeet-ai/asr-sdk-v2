@@ -102,6 +102,7 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str, met
         raise ValueError("缺少必需的环境变量：ZMEET_APP_ID 或 ZMEET_APP_SECRET 未设置")
     
     base_url = "wss://audio.abcpen.com:8443/asr-realtime/v2/ws"
+    #base_url = "ws://127.0.0.1:2001/asr-realtime/v2/ws"
     signa, ts = generate_signature(app_id, app_secret)
     
     # 更新 URL，添加声纹识别参数
@@ -114,6 +115,7 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str, met
            f"&target_language={args.target_language}"
            f"&audio_channels=1"
            f"&active_channel=merge"
+           f"&audio_splits=false"
            f"&metadata={quote(args.metadata)}")
     
     try:

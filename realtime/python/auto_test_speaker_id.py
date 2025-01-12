@@ -159,7 +159,7 @@ class VoiceIDClient:
                 t1 = perf_counter()
                 response = requests.post(url, headers=self.headers, files=files, data=values)
                 logger.info(
-                    f"Search result: {response.text}, time: {perf_counter() - t1}s"
+                    f"Search {audio_path} result: {response.text}, time: {perf_counter() - t1}s\n"
                 )
                 return response.json()
         except Exception as e:
@@ -293,12 +293,12 @@ def main():
     try:
         # 执行所有操作
         client.register_directory()
-        client.count_voices()
-        client.list_voices()
+        #client.count_voices()
+        #client.list_voices()
         
-        #client.search_voice(f"{config.audio_dirs['verify']}/1006_20241223_081645_full_audio.wav")
+        client.search_voice(f"{config.audio_dirs['verify']}/1006_20241223_194521_user_audio_0000.wav")
         # 验证目录下的所有音频文件
-        client.search_directory()
+        #client.search_directory()
         #client.delete_all_speakers()
     
     except Exception as err:
