@@ -63,6 +63,7 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 | voiceprint           | string | 否   | 是否启用实时声纹识别（对返回的每段话做说话人实时识别）； 为1表示启用，为0表示不启用。 默认开启。 | 1                                                            |
 | voiceprint_org_id    | string | 否   | 声纹识别的组织id，默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。**注册声纹时候传入的相应参数必须和这里的相同**。 | 默认为申请app key时候给的application id                      |
 | voiceprint_tag_id    | string |      | 声纹识别的tag id， 默认为申请app key时候给的application id。 org id + tag id + speaker name组成一个最终确认的说话人身份。 **注册声纹时候传入的相应参数必须和这里的相同**。 | 默认为申请app key时候给的application id                      |
+| audio_splits         | bool   | 否   | 声纹识别的时候，如果针对1s左右这种极短语音做声纹识别，则建议设置为False；默认为True。请谨慎修改此参数 | True                                                         |
 | scene                | string | 否   | 垂直领域个性化参数: <br/>法院: court <br/>教育: edu <br/>金融: finance <br/>医疗: medical <br/>科技: tech <br/>运营商: isp <br/>政府: gov <br/>电商: ecom <br/>军事: mil <br/>企业: com <br/>生活: life <br/>汽车: car | 设置示例：scene="edu" 参数scene为非必须设置，不设置参数默认为通用 |
 | asr_type             | string | 否   | 识别结果输出类型，sentence，输出逐句结果；word，输出逐字和逐句结果，默认为word。 | "word"                                                       |
 | word_time            | bool   | 否   | 开启后，在result字段，包含每个字词的时间戳                   | 0                                                            |
