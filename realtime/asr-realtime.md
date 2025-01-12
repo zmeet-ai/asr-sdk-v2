@@ -112,7 +112,7 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 | speaker   | string | 当type是voiceprint的时候，返回的实时声纹识别的说话人身份。   |
 | translate | string | 当开启同声传译后，返回的目标翻译语言（**文档待完善**）       |
 | result    | list   | 返回的逐字时间戳和对应的文字或词组                           |
-| emotion   | string | 1. "happy"表示高兴<br/> 2. "sad"表示悲伤<br/>3. "angry"表示愤怒<br/>4. "neutral"表示中性或者中立<br/> 5. "fearful"表示恐惧<br/> 6. "disgusted"表示反感, <br/>7. "surprised"表示惊讶 |
+| emotion   | string | 1. "happy"，表示高兴<br/> 2. "sad"，表示悲伤<br/>3. "angry"，表示愤怒<br/>4. "neutral"，表示中性或者中立<br/> 5. "fearful"，表示恐惧<br/> 6. "disgusted"，表示反感, <br/>7. "surprised"，表示惊讶 |
 | event     | string | 1. "bgm", 表示背景音乐<br/>2. "speech", 表示语音<br/>3. "applause",  表示掌声<br/>4. "laughter", 表示笑声<br/>5. "cry", 表示哭声<br/>6. "sneeze", 表示打喷嚏 <br/>7. "breath", 表示呼吸声<br/>8. "cough", 表示咳嗽声 |
 
 其中task_id字段主要用于DEBUG追查问题，如果出现问题，可以提供task_id帮助确认问题。
