@@ -69,6 +69,7 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 | word_time            | bool   | 否   | 开启后，在result字段，包含每个字词的时间戳                   | 0                                                            |
 | translate_mode       | bool   | 否   | 是否开启同声传译                                             | 0                                                            |
 | target_language      | string | 否   | 开启同声传译后，翻译后的目标语言                             | "en", 表示英文；别的语言参考下文中的**语言参数**             |
+| voiceprint_score     | float  | 否   | 声纹识别的分数，默认是60分，大于30分以上都属于合格分数，请根据实际场景权衡处理;建议分数区间在30~90分之间 | 默认60                                                       |
 | metadata             | string | 否   | 提交的原始字符串，如果是json请先转化成字符串（参考java/python/nodejs示例代码）;返回的时候，回传的json字符串和这里提交的字符串一样。 | ""                                                           |
 | noise_threshold      | float  | 否   | 噪音参数阈值，默认为0.5，取值范围：[0.3,1]，对于一些音频片段，取值越大，判定为噪音情况越大。取值越小，判定为人声情况越大。<br/>**慎用：可能影响识别效果**（**文档待完善**） |                                                              |
 | audio_power_far_near | float  | 否   | 多人说话的时候，区分远场语音和近场语音（**文档待完善**）     |                                                              |
@@ -101,20 +102,21 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 结果格式为json，字段说明如下：
 
-| 参数      | 类型   | 说明                                                         |
-| :-------- | :----- | :----------------------------------------------------------- |
-| code      | string | 结果码(具体见 <a href="#错误码">错误码</a> ， 出现错误的时候返回) |
-| msg       | string | 结果数据（出现错误的时候返回）                               |
-| seg_id    | string | 从0开始的语句id，返回的每条语句逐步递增seg_id; 注意只有一句话完整稳定识别后才会递增seg_id, is_final为True， 表示一句话完全稳定识别完毕。 |
-| type      | string | asr: 表示是实时语音识别返回的文本；  voiceprint：表示是实时声纹识别返回的说话人 |
-| is_final  | bool   | True： 表示这句话返回的结果已经稳定，不再修改；False：表示这段话会根据上下文继续矫正，可能继续修改 |
-| task_id   | uuid   | 每次实时识别，赋予一个新的uuid，是每次识别会话的唯一id。     |
-| asr       | string | 当type是asr时，返回的实时语音识别的文本结果。                |
-| speaker   | string | 当type是voiceprint的时候，返回的实时声纹识别的说话人身份。   |
-| translate | string | 当开启同声传译后，返回的目标翻译语言（**文档待完善**）       |
-| result    | list   | 返回的逐字时间戳和对应的文字或词组                           |
-| emotion   | string | 1. "happy"，表示高兴<br/> 2. "sad"，表示悲伤<br/>3. "angry"，表示愤怒<br/>4. "neutral"，表示中性或者中立<br/> 5. "fearful"，表示恐惧<br/> 6. "disgusted"，表示反感, <br/>7. "surprised"，表示惊讶 |
-| event     | string | 1. "bgm", 表示背景音乐<br/>2. "speech", 表示语音<br/>3. "applause",  表示掌声<br/>4. "laughter", 表示笑声<br/>5. "cry", 表示哭声<br/>6. "sneeze", 表示打喷嚏 <br/>7. "breath", 表示呼吸声<br/>8. "cough", 表示咳嗽声 |
+| 参数          | 类型   | 说明                                                         |
+| :------------ | :----- | :----------------------------------------------------------- |
+| code          | string | 结果码(具体见 <a href="#错误码">错误码</a> ， 出现错误的时候返回) |
+| msg           | string | 结果数据（出现错误的时候返回）                               |
+| seg_id        | string | 从0开始的语句id，返回的每条语句逐步递增seg_id; 注意只有一句话完整稳定识别后才会递增seg_id, is_final为True， 表示一句话完全稳定识别完毕。 |
+| type          | string | asr: 表示是实时语音识别返回的文本；  voiceprint：表示是实时声纹识别返回的说话人 |
+| is_final      | bool   | True： 表示这句话返回的结果已经稳定，不再修改；False：表示这段话会根据上下文继续矫正，可能继续修改 |
+| task_id       | uuid   | 每次实时识别，赋予一个新的uuid，是每次识别会话的唯一id。     |
+| asr           | string | 当type是asr时，返回的实时语音识别的文本结果。                |
+| speaker       | string | 当type是voiceprint的时候，返回的实时声纹识别的说话人身份。   |
+| translate     | string | 当开启同声传译后，返回的目标翻译语言（**文档待完善**）       |
+| result        | list   | 返回的逐字时间戳和对应的文字或词组                           |
+| emotion       | string | 1. "happy"，表示高兴<br/> 2. "sad"，表示悲伤<br/>3. "angry"，表示愤怒<br/>4. "neutral"，表示中性或者中立<br/> 5. "fearful"，表示恐惧<br/> 6. "disgusted"，表示反感, <br/>7. "surprised"，表示惊讶 |
+| event         | string | 1. "bgm", 表示背景音乐<br/>2. "speech", 表示语音<br/>3. "applause",  表示掌声<br/>4. "laughter", 表示笑声<br/>5. "cry", 表示哭声<br/>6. "sneeze", 表示打喷嚏 <br/>7. "breath", 表示呼吸声<br/>8. "cough", 表示咳嗽声 |
+| asr_corrected | string | 当实时流返回的asr type字段是voiceprint的时候，会返回 asr_corrected 字段;该字段是文本矫正的结果 |
 
 其中task_id字段主要用于DEBUG追查问题，如果出现问题，可以提供task_id帮助确认问题。
 

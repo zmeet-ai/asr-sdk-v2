@@ -59,18 +59,24 @@ async def receive_recognition_result(websocket: WebSocketClientProtocol, print_m
             seg_id = asr_json.get("seg_id", 0)
             asr = asr_json.get("asr", "")
             type = asr_json.get("type", "")
-            if print_mode == "typewriter":
-                if type == "asr":
-                    # 打字机效果输出：根据 is_final 决定是否换行
-                    if is_final:
-                        print(f"\r{seg_id}:{asr}", flush=True)
-                    else:
-                        print(f"\r{seg_id}:{asr}", end="", flush=True)
+            if args.print_voiceprint == "1":
+                asr_corrected = asr_json.get("asr_corrected", "")
+                if len(asr_corrected) > 0:
+                    speaker = asr_json.get("speaker", "")
+                    print(f"\r{speaker}: {asr_corrected}", flush=True)
             else:
-                if is_final:
-                    logger.warning(f"{asr_json}")
+                if print_mode == "typewriter":
+                    if type == "asr":
+                        # 打字机效果输出：根据 is_final 决定是否换行
+                        if is_final:
+                            print(f"\r{seg_id}:{asr}", flush=True)
+                        else:
+                            print(f"\r{seg_id}:{asr}", end="", flush=True)
                 else:
-                    logger.info(f"{asr_json}")
+                    if is_final:
+                        logger.warning(f"{asr_json}")
+                    else:
+                        logger.info(f"{asr_json}")
         await asyncio.sleep(120)  # 释放控制权，允许其他任务执行
     except Exception as err:
         print(f"receive_recognition_result error: {repr(err)}")
@@ -115,7 +121,6 @@ async def connect_to_server(print_mode: str, asr_type: str, audio_file: str, met
            f"&target_language={args.target_language}"
            f"&audio_channels=1"
            f"&active_channel=merge"
-           f"&audio_splits=false"
            f"&metadata={quote(args.metadata)}")
     
     try:
@@ -162,6 +167,11 @@ if __name__ == "__main__":
                        type=str,
                        default=None,  # 将使用 app_id 作为默认值
                        help='Tag ID for voiceprint (default: same as app_id)')
+    parser.add_argument('--print_voiceprint',
+                       type=str,
+                       default='0',
+                       choices=['0', '1'],
+                       help='Enable voiceprint result printing (0: disabled, 1: enabled)')
     parser.add_argument('--word_time',
                        type=str,
                        default='0',
@@ -178,9 +188,7 @@ if __name__ == "__main__":
                        help='Target language for translation')
     # 用户自定义的metadata, 直接回传给客户, 这里仅作示例，可以传递任意json字符串（stringfy）
     metadata_sample = {
-        "user_id": "1234567890",
-        "user_name": "John Doe",
-        "user_grade": "6"
+        "user_name": "John",
     }
     parser.add_argument('--metadata',
                        type=str,
