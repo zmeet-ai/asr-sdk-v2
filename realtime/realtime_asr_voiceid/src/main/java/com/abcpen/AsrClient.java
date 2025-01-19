@@ -208,13 +208,14 @@ public class AsrClient {
         int segId = (int) asrJson.getOrDefault("seg_id", 0);
         String asr = (String) asrJson.getOrDefault("asr", "");
         String type = (String) asrJson.getOrDefault("type", "");
+        String asr_corrected = (String) asrJson.getOrDefault("asr_corrected", "");
 
         if ("typewriter".equals(printMode)) {
             if ("asr".equals(type)) {
                 if (isFinal) {
                     System.out.printf("\r%d:%s%n", segId, asr);
                 } else {
-                    System.out.printf("\r%d:%s", segId, asr);
+                    System.out.printf("\r%d:%s->%s", segId, asr, asr_corrected);
                 }
             }
         } else {

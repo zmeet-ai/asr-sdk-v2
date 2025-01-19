@@ -43,6 +43,7 @@
 | voiceprint_enabled | boolean | 否   | 是否启用声纹识别，默认false              |
 | voiceprint_org_id  | string  | 否   | 声纹识别组织ID                           |
 | voiceprint_tag_id  | string  | 否   | 声纹识别标签ID                           |
+| corrector_enabled | bool | 否 | 是否启用文本矫正，启用后返回asr_corrected字段 |
 
 #### JSON格式
 
@@ -69,18 +70,22 @@
     "msg": "success",
     "data": {
         "asr": "识别的文本内容",
-        "speaker": "说话人名称(启用声纹时返回)"
+        "asr_corrected":"识别的文本内容矫正后的内容"
+        "speaker": "说话人名称(启用声纹时返回)",
+        "voiceprint_score":  "浮点分数，是说话人的识别分数"
     }
 }
 ```
 
-| 参数名   | 类型   | 说明                                          |
-| :------- | :----- | :-------------------------------------------- |
-| code     | string | 返回码，0表示成功                             |
-| msg      | string | 返回信息                                      |
-| data     | object | 返回数据                                      |
-| asr      | string | 识别的文本内容                                |
-| speaker  | string | 说话人名称，未启用声纹或未识别到时返回"未知"   |
+| 参数名           | 类型   | 说明                                         |
+| :--------------- | :----- | :------------------------------------------- |
+| code             | string | 返回码，0表示成功                            |
+| msg              | string | 返回信息                                     |
+| data             | object | 返回数据                                     |
+| asr              | string | 识别的文本内容                               |
+| asr_corrected    | string | 识别的文本内容矫正后的内容                   |
+| speaker          | string | 说话人名称，未启用声纹或未识别到时返回"未知" |
+| voiceprint_score | float  | 浮点分数，是说话人的识别分数                 |
 
 ## 错误码
 

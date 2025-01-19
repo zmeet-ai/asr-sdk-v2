@@ -3,8 +3,8 @@
 
 class Config:
     API_URLS = {
-        "local": "http://127.0.0.1:2000",
-        "dev": "http://192.168.2.141:2000",
+        "local": "http://127.0.0.1:2001",
+        "dev": "http://192.168.2.141:2001",
         "pre": "https://asr-pre.abcpen.com:8443",
         "prd": "https://audio.abcpen.com:8443",
     }
