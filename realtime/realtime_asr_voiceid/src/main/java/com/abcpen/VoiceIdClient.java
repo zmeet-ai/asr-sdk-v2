@@ -28,7 +28,7 @@ public class VoiceIdClient {
     public void registerVoice(String audioPath, String speakerName, String orgId, String tagId) {
         try {
             String[] signatureData = SignatureUtil.generateSignature(appId, appSecret);
-            String url = serverUrl + "/voiceid/register";
+            String url = serverUrl + "/voiceid/register/v2";
 
             RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)
@@ -61,7 +61,7 @@ public class VoiceIdClient {
     public void searchVoice(String audioPath, String orgId, String tagId) {
         try {
             String[] signatureData = SignatureUtil.generateSignature(appId, appSecret);
-            String url = serverUrl + "/voiceid/recognize";
+            String url = serverUrl + "/voiceid/recognize/v2";
 
             RequestBody requestBody = new MultipartBody.Builder()
                 .setType(MultipartBody.FORM)

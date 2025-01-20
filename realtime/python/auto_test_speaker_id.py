@@ -123,7 +123,7 @@ class VoiceIDClient:
                     "denoise_audio": "0",
                     "audio_preprocess": str(audio_preprocess).lower(),
                 }
-                url = f"{self.config.url_server}/voiceid/register"
+                url = f"{self.config.url_server}/voiceid/register/v2"
                 t1 = perf_counter()
                 response = requests.post(url, headers=self.headers, files=files, data=values)
                 logger.info(
@@ -155,7 +155,7 @@ class VoiceIDClient:
                     "denoise_audio": "0",
                     "audio_preprocess": str(audio_preprocess).lower(),
                 }
-                url = f"{self.config.url_server}/voiceid/recognize"
+                url = f"{self.config.url_server}/voiceid/recognize/v2"
                 t1 = perf_counter()
                 response = requests.post(url, headers=self.headers, files=files, data=values)
                 logger.info(
