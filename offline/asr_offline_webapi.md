@@ -36,14 +36,18 @@
 ```
 
 **参数说明:**
-| 参数名 | 类型 | 必填 | 说明 |
-|--------|------|------|------|
-| audio_url | string | 是 | 待转写音频的URL地址 |
-| app_id | string | 是 | 您的app_id，应用ID， **声纹识别的时候必须参数** |
-| org_id | string | 否 | 您的org_id, **声纹识别的时候必须参数** |
-| tag_id | string | 否 | 您的tag_id, **声纹识别的时候必须参数** |
-| task_id | string | 是 | 任务唯一标识符 |
-| language | string | 否 | 音频语言，如"zh"表示英语 |
+| 参数名 | 类型 | 必填 | 说明 | 备注 |
+|--------|------|------|------|--------|
+| audio_url | string | 是 | 待转写音频的URL地址 |  |
+| app_id | string | 是 | 您的app_id，应用ID， **声纹识别的时候必须参数** |  |
+| org_id | string | 否 | 您的org_id, **声纹识别的时候必须参数** | 声纹识别才需要 |
+| tag_id | string | 否 | 您的tag_id, **声纹识别的时候必须参数** | 声纹识别才需要 |
+| task_id | string | 是 | 任务唯一标识符 |  |
+| language | string | 否 | 音频语言，如"zh"表示中文 |  |
+| sd_type | string | 否 | v1, 采用速度更快的方式做说话人区分；v2，采用较慢但更精准的方式实现说话人区分 | 默认v2， 如果不做说话人区分，建议选择v1 |
+| denoise | bool | 否 |  | 默认为true，做语音降噪和背景消除，这个过程会**很耗时**，一般场景建议选择false |
+| max_speaker_num | int | 否 | 最大说话人人数 | 默认-1，建议和min_speaker_num一样，比如设置2 |
+| min_speaker_num | int | 否 | 最小说话人人数 | 默认-1，建议和max_speaker_num一样，比如设置为2 |
 
 ### 2. 查询任务状态
 
