@@ -142,6 +142,7 @@ GET /count
 GET /delete-speakers
 
 - 请求参数:
+
 | 参数名 | 类型 | 是否必需 | 描述 |
 |--------|------|----------|------|
 | org_id | string | 是 | 组织ID |
@@ -150,6 +151,7 @@ GET /delete-speakers
 | app_id | string | 是 | 应用ID(通过认证获取) |
 
 - 响应:
+
 ```json
 {"code":"0","msg":"success","data":1}
 ```
