@@ -42,7 +42,7 @@
 | app_id | string | 是 | 您的app_id，应用ID， **声纹识别的时候必须参数** |  |
 | org_id | string | 否 | 您的org_id, **声纹识别的时候必须参数** | 声纹识别才需要 |
 | tag_id | string | 否 | 您的tag_id, **声纹识别的时候必须参数** | 声纹识别才需要 |
-| task_id | string | 是 | 任务唯一标识符 |  |
+| task_id | string | 是 | 任务唯一标识符 | 必须是uuid4格式，否则服务端会返回一个新的uuid，如果是这样请获取新的task id用于获取任务结果。 |
 | language | string | 否 | 音频语言，如"zh"表示中文 |  |
 | sd_type | string | 否 | v1, 采用速度更快的方式做说话人区分；v2，采用较慢但更精准的方式实现说话人区分 | 默认v2， 如果不做说话人区分，建议选择v1 |
 | denoise | bool | 否 |  | 默认为true，做语音降噪和背景消除，这个过程会**很耗时**，一般场景建议选择false |
