@@ -11,6 +11,8 @@
 | tag_id | string | 是 | 标签ID |
 | audio | file | 是 | 音频文件 |
 | app_id | string | 是 | 应用ID(通过认证获取， 具体参考sdk示例代码) |
+
+
 - 响应:
 ```json
 {
@@ -26,6 +28,8 @@
 ### POST /update
 更新已存在说话人的声纹信息。
 -  请求参数:
+
+
 | 参数名 | 类型 | 是否必需 | 描述 |
 |--------|------|----------|------|
 | spk_name | string | 是 | 说话人名称 |
@@ -33,6 +37,7 @@
 | tag_id | string | 是 | 标签ID |
 | audio | file | 是 | 新的音频文件 |
 | app_id | string | 是 | 应用ID(通过认证获取) |
+
 
 - 响应:
 ```json
@@ -49,12 +54,14 @@
 ### POST /recognize
 对上传的音频进行声纹识别。
 - 请求参数:
+
 | 参数名 | 类型 | 是否必需 | 描述 |
 |--------|------|----------|------|
 | audio | file | 是 | 待识别的音频文件 |
 | org_id | string | 是 | 组织ID |
 | tag_id | string | 是 | 标签ID |
 | app_id | string | 是 | 应用ID(通过认证获取) |
+
 - 响应:
 ```json
 {
@@ -73,12 +80,14 @@
 ## 四、获取声纹音频URL
 ### GET /voice-url
 - 请求参数:
+
 | 参数名 | 类型 | 是否必需 | 描述 |
 |--------|------|----------|------|
 | spk_name | string | 是 | 说话人名称 |
 | org_id | string | 是 | 组织ID |
 | tag_id | string | 是 | 标签ID |
 | app_id | string | 是 | 应用ID(通过认证获取) |
+
 - 响应:
 ```json
 {
@@ -92,6 +101,7 @@
 ## 五、获取声纹列表
 ### GET /list
 - 请求参数:
+
 | 参数名 | 类型 | 是否必需 | 描述 |
 |--------|------|----------|------|
 | org_id | string | 是 | 组织ID |
@@ -99,6 +109,7 @@
 | offset | integer | 否 | 分页偏移量,默认0 |
 | limit | integer | 否 | 每页记录数,默认20 |
 | app_id | string | 是 | 应用ID(通过认证获取) |
+
 - 响应:
 ```json
 {
@@ -115,6 +126,7 @@
 ##  六、获取声纹数量
 GET /count
 - 请求参数:
+
 | 参数名 | 类型 | 是否必需 | 描述 |
 |--------|------|----------|------|
 | org_id | string | 是 | 组织ID |
@@ -136,6 +148,7 @@ GET /delete-speakers
 | tag_id | string | 是 | 标签ID |
 | speaker | array | 否 | 要删除的说话人列表 |
 | app_id | string | 是 | 应用ID(通过认证获取) |
+
 - 响应:
 ```json
 {"code":"0","msg":"success","data":1}

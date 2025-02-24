@@ -13,7 +13,7 @@ dotenv.load_dotenv()
 
 # FastAPI 服务的 URL
 BASE_URL = "https://audio.abcpen.com:8443"
-#BASE_URL = "http://127.0.0.1:2002"
+
 
 application_key = os.getenv("ZMEET_APP_ID")
 application_secret = os.getenv("ZMEET_APP_SECRET")
