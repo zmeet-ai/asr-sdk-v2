@@ -23,6 +23,35 @@ sleep_time_duration = 0.1 # 每次发送音频数据后等待的时间长度，�
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(os.path.dirname(__file__), "../dataset/asr"))
 
+def update_logger():
+    # 打印日志，方便追踪问题
+    log_file = os.getenv("LOG_FILE", "/data/logs/asr/asr_test.log")
+    log_dir = os.path.dirname(log_file)
+    # 检查目录是否存在，如果不存在则创建
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+    log_level = os.getenv("LOG_LEVEL", "DEBUG")
+    max_file_size = 100 * 1024 * 1024  # 100 MB
+
+    # 配置默认的控制台处理器
+    logger.configure(
+        handlers=[
+            {
+                "sink": sys.stderr,
+                "format": "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level: <8}</level> | <cyan>{message}</cyan> | {file}:{function}:{line}",
+                "colorize": True,
+                "level": log_level,
+            }
+        ]
+    )
+
+    # 添加文件日志处理器
+    logger.add(
+        log_file,
+        rotation=max_file_size,  # Rotate when file size reaches 100MB
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {message} | {file}:{function}:{line}",
+        level=log_level,
+    )
 async def send_audio_data(websocket: WebSocketClientProtocol, audio_file: str):
     try:
         filename = audio_file
@@ -203,5 +232,6 @@ if __name__ == "__main__":
         args.voiceprint_org_id = app_id
     if args.voiceprint_tag_id is None:
         args.voiceprint_tag_id = app_id
-
+    update_logger()
+    logger.info(f"\n{'*'*50} \n asr realtime start \n{'*'*50}\n")
     asyncio.run(connect_to_server(args.mode, args.asr_type, args.audio_file, args.metadata))
