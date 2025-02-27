@@ -183,6 +183,221 @@ key1=value1&key2=value2…（key和value都需要进行urlencode）
 
 {"translate": {"target_language": "en"}}
 
+## 实时转写语音回放文件API
+
+## 概述
+
+音频存储服务API提供了管理和访问音频记录的接口，包括获取单条音频记录、删除音频记录以及批量查询应用的音频记录列表。
+
+## 认证
+
+所有API请求需要通过authenticate_https认证，认证成功后会返回app_id。
+
+## API 接口
+
+### 1. 获取音频记录
+
+获取指定任务ID的音频记录详情。
+
+请求方法: GET
+
+路径: /asr/v2/audio/record/{task_id}
+
+#### 参数
+
+参数
+| 参数名 | 类型 | 位置 | 必填 | 描述 |
+|--------|------|------|------|------|
+| task_id | string | 路径 | 是 | 任务ID |
+
+#### 响应
+
+成功响应 (200 OK)
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "data": {
+    "app_id": "应用ID",
+    "task_id": "任务ID",
+    "file_path": "文件路径",
+    "file_size": 文件大小,
+    "duration": 音频时长,
+    "channels": 声道数,
+    "sample_rate": 采样率,
+    "status": 状态码,
+    "metadata": 元数据对象
+  },
+  "request_id": "请求ID"
+}
+```
+
+记录未找到 (404 Not Found)
+
+```json
+{
+  "code": "404",
+  "message": "Record not found",
+  "data": null,
+  "request_id": "请求ID"
+}
+```
+
+服务器错误 (500 Internal Server Error)
+
+```json
+{
+  "code": "-1",
+  "message": "错误信息",
+  "data": null,
+  "request_id": "请求ID"
+}
+```
+
+
+
+### 2. 删除音频记录
+
+软删除指定任务ID的音频记录（将状态设置为0）。
+
+请求方法: DELETE
+
+路径: /asr/v2/audio/record/{task_id}
+
+参数
+| 参数名 | 类型 | 位置 | 必填 | 描述 |
+|--------|------|------|------|------|
+| task_id | string | 路径 | 是 | 任务ID
+
+响应
+成功响应 (200 OK)
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "request_id": "请求ID"
+}
+```
+
+记录未找到或删除失败 (404 Not Found)
+
+```json
+{
+  "code": "404",
+  "message": "Record not found or delete failed",
+  "request_id": "请求ID"
+}
+```
+
+服务器错误 (500 Internal Server Error)
+
+```json
+{
+  "code": "-1",
+  "message": "错误信息",
+  "request_id": "请求ID"
+}
+```
+
+
+
+### 3. 获取应用的音频记录列表
+
+获取当前应用的所有音频记录列表，支持分页和时间范围筛选。
+
+请求方法: GET
+
+路径: /asr/v2/audio/records
+
+参数
+
+| 参数名 | 类型 | 位置 | 必填 | 描述 |
+|--------|------|------|------|------|
+| start_time | datetime | 查询参数 | 否 | 开始时间，过滤创建时间大于等于此值的记录 |
+| end_time | datetime | 查询参数 | 否 | 结束时间，过滤创建时间小于等于此值的记录 |
+| limit | integer | 查询参数 | 否 | 返回记录数量限制，默认100 |
+| offset | integer | 查询参数 | 否 | 分页偏移量，默认0 |
+
+#### 响应
+
+成功响应 (200 OK)
+
+```json
+{
+  "code": "0",
+  "message": "success",
+  "data": {
+    "records": [
+      {
+        "app_id": "应用ID",
+        "task_id": "任务ID",
+        "file_path": "文件路径",
+        "file_size": 文件大小,
+        "duration": 音频时长,
+        "channels": 声道数,
+        "sample_rate": 采样率,
+        "status": 状态码,
+        "metadata": 元数据对象
+      },
+      // ... 更多记录
+    ],
+    "total": 返回的记录总数,
+    "limit": 限制数量,
+    "offset": 偏移量
+  },
+  "request_id": "请求ID"
+}
+```
+
+
+
+服务器错误 (500 Internal Server Error)
+
+```json
+{
+  "code": "-1",
+  "message": "错误信息",
+  "data": null,
+  "request_id": "请求ID"
+}
+```
+
+## 状态码说明
+
+| 状态码 | 描述 |
+|--------|------|
+| 0 | 成功 |
+| 404 | 资源未找到 |
+| -1 | 服务器内部错误 |
+
+## 数据模型
+
+音频记录 (AudioRecord)
+| 字段名 | 类型 | 描述 |
+|--------|------|------|
+| app_id | string | 应用ID |
+| task_id | string | 任务ID |
+| file_path | string | 文件路径（COS存储路径） |
+| file_size | integer | 文件大小（字节） |
+| duration | integer | 音频时长（秒） |
+| channels | integer | 音频声道数 |
+| sample_rate | integer | 采样率 |
+| status | integer | 状态（1:有效, 0:已删除） |
+| metadata | object | 元数据（可选） |
+
+## 注意事项
+
+所有请求均需通过认证获取app_id
+
+删除操作为软删除，将记录状态设置为0
+
+获取记录接口只返回状态为1的有效记录
+
+
+
+
 ## 白名单
 
 在调用该业务接口时
