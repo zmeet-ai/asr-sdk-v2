@@ -182,8 +182,8 @@ if __name__ == "__main__":
                        help='ASR recognition mode: sentence (default) or word')
     parser.add_argument('--audio_file',
                        type=str,
-                       default=os.path.join(os.path.dirname(__file__), "../dataset/asr/1002_20241126_231435_full_audio.wav"),
-                       help='Path to the audio file (default: ../dataset/asr/1002_20241126_231435_full_audio.wav)')
+                       default=os.path.join(os.path.dirname(__file__), "../dataset/asr/1006_20241223_081645_full_audio.wav"),
+                       help='Path to the audio file (default: ../dataset/asr/1006_20241223_081645_full_audio.wav)')
     parser.add_argument('--voiceprint',
                        type=str,
                        default='1',
