@@ -27,12 +27,12 @@ class AsrRequest:
     audio_file: Optional[bytes] = None
     audio_url: Optional[str] = None
     vocab_id: Optional[str] = None
-    voiceprint_enabled: bool = True
+    voiceprint_enabled: bool = False
     voiceprint_org_id: Optional[str] = None
     voiceprint_tag_id: Optional[str] = None
 
 class AsrClient:
-    def __init__(self, api_url: str = Config.API_URLS["prd"]):
+    def __init__(self, api_url: str = Config.API_URLS["dev"]):
         self.api_url = api_url
         self.app_id = Config.APP_ID
         self.app_secret = Config.APP_SECRET
@@ -88,7 +88,7 @@ class AsrClient:
                 data = request.__dict__
                 if request.audio_file:
                     data["audio_file"] = base64.b64encode(request.audio_file).decode()
-                    data["voiceprint_enabled"] = True
+                    data["voiceprint_enabled"] = False
                     data["voiceprint_org_id"] = self.app_id
                     data["voiceprint_tag_id"] = self.app_id
                     logger.info(f"audio file for json data: {data}")
@@ -99,7 +99,7 @@ class AsrClient:
                     data = {
                         "language": request.language,
                         "fast": request.fast,
-                        "voiceprint_enabled": True,
+                        "voiceprint_enabled": False,
                         "voiceprint_org_id": self.app_id,
                         "voiceprint_tag_id": self.app_id
                     }
@@ -107,7 +107,7 @@ class AsrClient:
                     response = requests.post(url, headers=headers, files=files, data=data)
                 else:
                     data = request.__dict__
-                    data["voiceprint_enabled"] = True
+                    data["voiceprint_enabled"] = False
                     data["voiceprint_org_id"] = self.app_id
                     data["voiceprint_tag_id"] = self.app_id
                     logger.info(f"{'-'*100}audio file for form data: {data}")
@@ -149,21 +149,24 @@ def main():
     client = AsrClient()
     
     try:
-        for i in range(1):
+        for i in range(100):
             # 使用文件测试
-            with open(Config.AUDIO_FILES[args.language]["file"], "rb") as f:
+            test_file = Config.AUDIO_FILES[args.language]["file"]
+            logger.info(f"Testing file: {test_file}")
+            with open(test_file, "rb") as f:
                 request = AsrRequest(
                     language=args.language,
                     audio_file=f.read()
                 )
                 client.test_sentence(request, use_json=False)
-
+            """
             # 使用URL测试
             request = AsrRequest(
                 language=args.language,
                 audio_url=Config.AUDIO_FILES[args.language]["url"]
             )
             client.test_sentence(request, use_json=False)
+            """
 
     except KeyboardInterrupt:
         logger.error("Test interrupted by user")

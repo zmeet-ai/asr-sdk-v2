@@ -18,6 +18,7 @@ const SLEEP_TIME_DURATION = 100; // 100ms, 转换为毫秒
 
 // 生成签名
 function generateSignature(appId, apiKey) {
+    console.log(appId, apiKey)
     const ts = Math.floor(Date.now() / 1000).toString();
     const md5 = crypto.createHash('md5');
     md5.update(appId + ts);
