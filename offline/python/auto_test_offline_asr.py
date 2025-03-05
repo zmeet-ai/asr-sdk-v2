@@ -8,7 +8,7 @@ import hmac
 import base64
 import os
 import dotenv
-
+import json
 dotenv.load_dotenv()
 
 # FastAPI 服务的 URL
@@ -107,6 +107,12 @@ def main():
     # 获取任务结果
     result_response = get_result(task_id)
     print("Result Response:", result_response)
+    
+    # 保存结果到JSON文件
+    output_filename = f"asr_result_{task_id}.json"
+    with open(output_filename, "w", encoding="utf-8") as f:
+        json.dump(result_response, f, ensure_ascii=False, indent=4)
+    print(f"结果已保存到文件: {output_filename}")
 
 if __name__ == "__main__":
     main()
