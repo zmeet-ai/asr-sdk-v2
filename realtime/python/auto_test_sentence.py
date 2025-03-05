@@ -32,7 +32,7 @@ class AsrRequest:
     voiceprint_tag_id: Optional[str] = None
 
 class AsrClient:
-    def __init__(self, api_url: str = Config.API_URLS["dev"]):
+    def __init__(self, api_url: str = Config.API_URLS["prd"]):
         self.api_url = api_url
         self.app_id = Config.APP_ID
         self.app_secret = Config.APP_SECRET
